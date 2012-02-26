@@ -17,14 +17,13 @@ describe Okey::Server do
         :host => 'localhost',
         :ws_host => '127.0.0.1',
         :ws_port => 48080,
-        :http_port => 45678,
+        :http_port => 45678
       })
       server.env.should == :development
       server.host.should == 'localhost'
       server.ws_host.should == '127.0.0.1'
       server.ws_port.should == 48080
       server.http_port.should == 45678
-
     end
   end
 
