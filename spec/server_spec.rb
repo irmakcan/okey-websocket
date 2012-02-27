@@ -9,6 +9,7 @@ describe Okey::Server do
       server.http_port.should == 3000
       server.ws_host.should == '0.0.0.0'
       server.ws_port.should == 8080
+      server.version.should == '0.0.0'
     end
 
     it "should accept options" do
@@ -17,13 +18,15 @@ describe Okey::Server do
         :host => 'localhost',
         :ws_host => '127.0.0.1',
         :ws_port => 48080,
-        :http_port => 45678
+        :http_port => 45678,
+        :version => '0.1.1'
       })
       server.env.should == :development
       server.host.should == 'localhost'
       server.ws_host.should == '127.0.0.1'
       server.ws_port.should == 48080
       server.http_port.should == 45678
+      server.version.should == '0.1.1'
     end
   end
 

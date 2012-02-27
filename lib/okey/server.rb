@@ -1,7 +1,7 @@
 module Okey
   class Server
 
-    attr_reader :env, :host, :ws_host, :ws_port, :http_port
+    attr_reader :env, :host, :ws_host, :ws_port, :http_port, :version
     def self.start(opts = {})
       new(opts).start
     end
@@ -15,20 +15,20 @@ module Okey
       @ws_port    = (opts.delete(:ws_port) || 8080).to_i
       @http_port  = (opts.delete(:http_port) || 3000).to_i
 
+      @version    = (opts.delete(:version) || '0.0.0').to_s
+
       @opts = opts
 
+      @user_controller = UserController.new(@version)
     end
 
-    # def start
-    # start_server(:host => '0.0.0.0', :port => 8080, :debug => true)
-    # end
 
     def start
       EventMachine.run do
         trap("TERM") { stop_server }
         trap("INT")  { stop_server }
 
-        EventMachine::WebSocket.start(:host => @ws_host, :port => @ws_port, :port => @ws_port, :debug => true) do |ws|
+        EventMachine::WebSocket.start(:host => @ws_host, :port => @ws_port, :debug => true) do |ws|
 
           puts 'Establishing websocket'
           ws.onopen do
@@ -37,8 +37,9 @@ module Okey
             puts 'client connected'
             puts 'subscribing to channel'
 
-            room = @room_factory.get_room
-            room.join(user)
+            @user_controller.subscribe(user)
+            #room = @room_factory.get_room
+            #room.join(user)
           end
         end
         WebServer.run!(:bind => @host, :port => @http_port, :ws_port => @ws_port, :environment => @env)
@@ -49,7 +50,7 @@ module Okey
       # Do other things before shutdown TODO
       EventMachine.stop
     end
-
+    
   end
 end
 

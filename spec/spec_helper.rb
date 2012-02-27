@@ -6,6 +6,13 @@ require 'json'
 require 'pp'
 require 'em-http'
 
+class MockWebSocketConnection < EventMachine::WebSocket::Connection
+  attr_accessor :onmessage
+  def initialize
+    super :debug => true 
+  end
+end
+
 class FakeDeferrable
   def callback(&block)
     @block = block
@@ -46,51 +53,89 @@ class FakeSocketClient < EventMachine::Connection
     @onclose.call if @onclose
   end
 end
-
 class FakeWebSocketClient < EM::Connection
-  attr_writer :onopen, :onclose, :onmessage
-  attr_reader :handshake_response, :packets, :request
+  attr_reader :handshake_response, :packets, :sent_data
+
+  def onopen(&blk);     @onopen = blk;    end
+  def onclose(&blk);    @onclose = blk;   end
+  def onerror(&blk);    @onerror = blk;   end
+  def onmessage(&blk);  @onmessage = blk; end
+
+  def get_onmessage();  @onmessage; end
 
   def initialize
     @state = :new
     @packets = []
-    @request = {
-      :port => 80,
-      :method => "GET",
-      :path => "/demo",
-      :headers => {
-        'Host' => 'example.com',
-        'Connection' => 'Upgrade',
-        'Sec-WebSocket-Key2' => '12998 5 Y3 1  .P00',
-        'Sec-WebSocket-Protocol' => 'sample',
-        'Upgrade' => 'WebSocket',
-        'Sec-WebSocket-Key1' => '4 @1  46546xW%0l 1 5',
-        'Origin' => 'http://example.com'
-      },
-      :body => '^n:ds[4U'
-    }
   end
 
-  def receive_data(data)
-    log "RECEIVE DATA #{data}"
-    if @state == :new
-      @handshake_response = data
-      @onopen.call if @onopen
-      @state = :open
-    else
-      @onmessage.call(data) if @onmessage
-      @packets << data
-    end
-  end
+  # def receive_data(data)
+    # # puts "RECEIVE DATA #{data}"
+    # if @state == :new
+      # @handshake_response = data
+      # @onopen.call if @onopen
+      # @state = :open
+    # else
+      # @onmessage.call(data) if @onmessage
+      # @packets << data
+    # end
+  # end
 
   def send(data)
-    send_data("\x00#{data}\xff")
+    @sent_data = data
   end
 
-  def unbind
-    @onclose.call if @onclose
-  end
+  # def send(data)
+    # send_data("\x00#{data}\xff")
+  # end
+
+  # def unbind
+    # @onclose.call if @onclose
+  # end
 end
+# class FakeWebSocketClient < EM::Connection
+  # attr_writer :onopen, :onclose, :onmessage
+  # attr_reader :handshake_response, :packets, :request
+# 
+  # def initialize
+    # @state = :new
+    # @packets = []
+    # @request = {
+      # :port => 80,
+      # :method => "GET",
+      # :path => "/demo",
+      # :headers => {
+        # 'Host' => 'example.com',
+        # 'Connection' => 'Upgrade',
+        # 'Sec-WebSocket-Key2' => '12998 5 Y3 1  .P00',
+        # 'Sec-WebSocket-Protocol' => 'sample',
+        # 'Upgrade' => 'WebSocket',
+        # 'Sec-WebSocket-Key1' => '4 @1  46546xW%0l 1 5',
+        # 'Origin' => 'http://example.com'
+      # },
+      # :body => '^n:ds[4U'
+    # }
+  # end
+# 
+  # def receive_data(data)
+    # log "RECEIVE DATA #{data}"
+    # if @state == :new
+      # @handshake_response = data
+      # @onopen.call if @onopen
+      # @state = :open
+    # else
+      # @onmessage.call(data) if @onmessage
+      # @packets << data
+    # end
+  # end
+# 
+  # def send(data)
+    # send_data("\x00#{data}\xff")
+  # end
+# 
+  # def unbind
+    # @onclose.call if @onclose
+  # end
+# end
 
 def failed
   EventMachine.stop

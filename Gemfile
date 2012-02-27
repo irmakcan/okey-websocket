@@ -18,6 +18,7 @@ group :test do
   gem "em-spec", :git => "git://github.com/bcg/em-spec.git"
   gem "em-http-request"
 
+  gem "em-websocket-client", "~> 0.1.1"
   # gem "rack-test", "~> 0.6.1"
 
 

@@ -6,6 +6,7 @@ require "bundler/setup"
 require "eventmachine"
 # require "addressable/uri"
 require "em-websocket"
+require "json"
 
 #%w[ state_machine timer server controller board move dispatch logger game web_server messaging ].each { |file| require "okey/#{file}" }
     

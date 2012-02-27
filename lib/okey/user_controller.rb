@@ -1,41 +1,65 @@
 module Okey
   class UserController
     
-    def initialize
-
+    def initialize(version)
+      @version = version
     end
 
     def subscribe(user)
       # May publish connection established
       # user.websocket.send json(connection established)
       user.websocket.onmessage { |msg|
-        json = JSON.parse(msg)
-
-        if json
-          if json["version"] != '0.0.0' # @@version TODO
-            # send version error TODO
-          else
-            if !authenticate(user, json["username"], json["cookie_salt"])
-              # send authentication error TODO
-            else
-              puts "#{user.username} authenticated"
-              # add to okey lounge
-            end
-          end
+        # result = nil
+        begin
+          json = JSON.parse(msg)
+          result = validate_message(json)
+        rescue JSON::ParserError
+          result = { :status => :error, :payload => { :message => "messaging error" }}.to_json
         end
+        
+        
+        if result.nil?
+          # Everything went well (authenticated)
+          user.username = json["payload"]["username"]
+          user.authenticated = true
+          
+          puts "#{user.username} is authenticated"
+        else
+          user.websocket.send result
+        end
+        
       }
     end
 
 
     private
-      def authenticate(user, username, cookie_salt)
+      def validate_message(json)
+        message = nil
+        
+        if json["action"] == "authenticate"
+          if json["payload"]["version"] != @version
+            # send version error TODO
+            message = { :status => :error, :payload => { :message => "incompatible version" }}.to_json
+          else
+            if !authenticate(json["payload"]["username"], json["payload"]["salt"])
+              # send authentication error TODO
+              message = { :status => :error, :payload => { :message => "authentication error" }}.to_json
+            end
+          end
+        else
+          message = { :status => :error, :payload => { :message => "messaging error" }}.to_json
+        end
+        message
+      end
+    
+      def authenticate(username, cookie_salt)
+        if username.nil? || username.empty? || username =~ /\s/ 
+          return false
+        end
         # do authenticate
         
         
-        result = true
-        user.username = username
-        user.authenticated = result
-        result
+        true
       end
 
   end
