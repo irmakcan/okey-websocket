@@ -103,6 +103,29 @@ describe Okey::UserController do
       end
 
     end
+
+    describe "success" do
+      it "should authenticate on matching username salt pair"
+
+      it "should assign user's username" do
+        em {
+          old_block = @user.websocket.get_onmessage
+          @user.websocket.get_onmessage.call(@json_attr.to_json)
+          @user.username.should == @json_attr[:payload][:username]
+          
+          done
+        }
+      end
+      
+      it "should change the onmessage Proc" do
+        em {
+          old_block = @user.websocket.get_onmessage
+          @user.websocket.get_onmessage.call(@json_attr.to_json)
+          @user.websocket.get_onmessage.should_not == old_block
+          done
+        }
+      end
+    end
   end
 
 # describe "authenticate" do
