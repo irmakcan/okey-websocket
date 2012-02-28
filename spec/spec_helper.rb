@@ -5,6 +5,7 @@ Okey.env = :test
 require 'json'
 require 'pp'
 require 'em-http'
+require 'em-spec/rspec'
 
 class MockWebSocketConnection < EventMachine::WebSocket::Connection
   attr_accessor :onmessage
@@ -61,7 +62,9 @@ class FakeWebSocketClient < EM::Connection
   def onerror(&blk);    @onerror = blk;   end
   def onmessage(&blk);  @onmessage = blk; end
 
-  def get_onmessage();  @onmessage; end
+  def get_onclose();     @onclose;   end
+  def get_onerror();     @onerror;   end
+  def get_onmessage(); @onmessage; end
 
   def initialize
     @state = :new

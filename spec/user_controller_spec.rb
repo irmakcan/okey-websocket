@@ -73,7 +73,7 @@ describe Okey::UserController do
         }
       end
 
-      it "should return authentication error message on username, salt mismatch"
+      #it "should return authentication error message on username, salt mismatch"
 
       it "should return authentication error message on invalid username" do
         em {
@@ -105,7 +105,7 @@ describe Okey::UserController do
     end
 
     describe "success" do
-      it "should authenticate on matching username salt pair"
+      #it "should authenticate on matching username salt pair"
 
       it "should assign user's username" do
         em {

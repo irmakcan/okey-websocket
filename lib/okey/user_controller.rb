@@ -2,6 +2,7 @@ module Okey
   class UserController
     def initialize(version)
       @version = version
+      
     end
 
     # FIXME Messed up logic TODO
@@ -21,9 +22,9 @@ module Okey
           # Everything went well (authenticated)
           user.username = json["payload"]["username"]
           user.authenticated = true
-          
-          Lounge.instance.join_lounge(user)
-          puts "#{user.username} is authenticated"
+
+          @lounge = Lounge.new unless @lounge          
+          @lounge.join_lounge(user)
         else
           user.websocket.send result
         end
