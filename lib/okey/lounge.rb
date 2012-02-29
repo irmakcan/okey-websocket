@@ -5,53 +5,55 @@ module Okey
       @lounge_channel = EM::Channel.new
       @empty_rooms = []
       @full_rooms = []
-
-      EventMachine.add_periodic_timer(5) do
-        json = []
-        @empty_rooms.each { |room|
-          json << ({ :action => :lounge_update, :payload => { :room => room.name, :count => room.count }}).to_json
-        }
-        @lounge_channel.push(json) unless json.empty?
-      end
     end
 
     def join_lounge(user)
       user.websocket.onmessage{ |msg|
         begin
           json = JSON.parse(msg)
-          handle_request(json)
+          handle_request(user, json)
         rescue JSON::ParserError
           result = { :status => :error, :payload => { :message => "messaging error" }}.to_json
+          user.websocket.send(result)
         rescue ArgumentError => message
           result = { :status => :error, :payload => { :message => message }}.to_json
+          user.websocket.send(result)
         end
       }
+      # user.websocket.onclose {}
       # subscribe
-      sid = @lounge_channel.subscribe do |msg|
-        user.websocket.send msg
-      end
-      user.subscribed_channel_id = sid
+      user.websocket.send({ :status => :success, :payload => { :message => "authentication success" }}.to_json)
       @player_count += 1
     end
 
     def leave_lounge(user)
-      @lounge_channel.unsubscribe(user.subscribed_channel_id)
+
+    end
+
+    def destroy_room(room)
+      @empty_rooms.delete(room)
     end
 
     private
 
-    def handle_request(json)
-      room_name = json[:room_name]
-      if room_name.nil? || room_name.empty?
-        raise ArgumentError, 'room name cannot be empty'
-      end
-      case json[:action]
-      when :join_room
-        join_room(json[:room_name])
-      when :create_room
-        create_and_join_room(json[:room_name])
+    def handle_request(user, json)
+      case json['action']
+      when 'join_room'
+        room_name = json['room_name']
+        if room_name.nil? || room_name.empty?
+          raise ArgumentError, 'room name cannot be empty'
+        end
+        join_room(json['room_name'])
+      when 'refresh_list'
+        send_room_json(user)
+      when 'create_room'
+        room_name = json['room_name']
+        if room_name.nil? || room_name.empty?
+          raise ArgumentError, 'room name cannot be empty'
+        end
+        create_and_join_room(json['room_name'])
       else # Send err
-      raise ArgumentError, 'messaging error'
+        raise ArgumentError, 'messaging error'
       end
     end
 
@@ -62,6 +64,15 @@ module Okey
 
     def create_and_join_room(room_name)
 
+    end
+
+    def send_room_json(user)
+      room_list = []
+      @empty_rooms.each { |room|
+        room_list << { :room_name => room.name, :count => room.count }
+      }
+      json = ({ :status => :lounge_update, :payload => { :list => room_list }}).to_json
+      user.websocket.send(json)
     end
 
   end

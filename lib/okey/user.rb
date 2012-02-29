@@ -1,6 +1,6 @@
 module Okey
   class User
-    attr_accessor :username, :subscribed_channel_id
+    attr_accessor :username
     attr_reader :websocket
     
     def initialize(websocket)

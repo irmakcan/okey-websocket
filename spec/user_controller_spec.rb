@@ -20,7 +20,7 @@ describe Okey::UserController do
 
     describe "failure" do
       describe "unsupported messages" do
-        it "should return fail json message on empty json" do
+        it "should return fail json message on empty string" do
           em {
             @user.websocket.get_onmessage.call("")
 

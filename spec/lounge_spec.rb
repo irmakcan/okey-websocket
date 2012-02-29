@@ -3,7 +3,6 @@ require 'spec_helper'
 describe Okey::Lounge do
   include EventMachine::SpecHelper
 
-
   describe "initialization" do
 
     it "should have default values" do
@@ -17,27 +16,28 @@ describe Okey::Lounge do
         done
       }
     end
-    
-    it "should add periodic timer with value 5" do
+
+  end
+
+  describe "join lounge" do
+    before(:each) do
+      @user = Okey::User.new(FakeWebSocketClient.new({}))
+    #@join_json_attr = { :action => 'authenticate', :payload => { :version => '0.0.0', :username => 'irmak', :salt => 'qwerty' }}
+    #@create_json_attr = { :action => 'authenticate', :payload => { :version => '0.0.0', :username => 'irmak', :salt => 'qwerty' }}
+    end
+    it "should send success json" do
       em {
-        EventMachine.should_receive(:add_periodic_timer).with(5)
-        Okey::Lounge.new
+        Okey::Lounge.new.join_lounge(@user)
+        # @user.websocket.get_onmessage.call("")
+
+        json = @user.websocket.sent_data
+        parsed = JSON.parse(json)
+        parsed["status"].should == "success"
+        parsed["payload"]["message"].should == "authentication success"
+
         done
       }
     end
-  end
-  
-  describe "periodic timer (updater)" do
-      
-  end
-  
-  describe "join" do
-    before(:each) do
-      @user = Okey::User.new(FakeWebSocketClient.new({}))
-      #@join_json_attr = { :action => 'authenticate', :payload => { :version => '0.0.0', :username => 'irmak', :salt => 'qwerty' }}
-      #@create_json_attr = { :action => 'authenticate', :payload => { :version => '0.0.0', :username => 'irmak', :salt => 'qwerty' }}
-    end
-    it "should send success json"
     it "should increase the player count by one" do
       em {
         @lounge = Okey::Lounge.new
@@ -60,6 +60,75 @@ describe Okey::Lounge do
 
         done
       }
+    end
+  end
+
+  describe "messaging" do
+    before(:each) do
+      @user = Okey::User.new(FakeWebSocketClient.new({}))
+      @refresh_request_attr = { :action => 'refresh_list' }
+      #@create_json_attr = { :action => 'authenticate', :payload => { :version => '0.0.0', :username => 'irmak', :salt => 'qwerty' }}
+      @lounge = Okey::Lounge.new
+      @lounge.join_lounge(@user)
+      @user.websocket.sent_data = nil
+    end
+    describe "undefined request" do
+      it "should send error json on empty string" do
+        em {
+          @user.websocket.get_onmessage.call("")
+          json = @user.websocket.sent_data
+          parsed = JSON.parse(json)
+
+          parsed["status"].should == "error"
+          parsed["payload"]["message"].should == "messaging error"
+
+          done
+        }
+      end
+      it "should send error json on empty json" do
+        em {
+          @user.websocket.get_onmessage.call({}.to_json)
+          json = @user.websocket.sent_data
+          parsed = JSON.parse(json)
+
+          parsed["status"].should == "error"
+          parsed["payload"]["message"].should == "messaging error"
+
+          done
+        }
+      end
+      it "should send error json on undefined request" do
+        em {
+          @user.websocket.get_onmessage.call({ :dummy_request => :val }.to_json)
+          json = @user.websocket.sent_data
+          parsed = JSON.parse(json)
+
+          parsed["status"].should == "error"
+          parsed["payload"]["message"].should == "messaging error"
+
+          done
+        }
+      end
+    end
+    describe "update request" do
+      it "should send appropriate json" do
+        em {
+          @user.websocket.get_onmessage.call(@refresh_request_attr.to_json)
+          json = @user.websocket.sent_data
+          parsed = JSON.parse(json)
+
+          parsed["status"].should == "lounge_update"
+          parsed["payload"]["list"].should be_instance_of(Array)
+
+          done
+        }
+      end
+    end
+    describe "join room request" do
+      ""
+    end
+    describe "create room request" do
+      ""
     end
   end
 
