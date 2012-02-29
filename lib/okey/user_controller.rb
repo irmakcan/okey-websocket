@@ -2,7 +2,7 @@ module Okey
   class UserController
     def initialize(version)
       @version = version
-      
+
     end
 
     # FIXME Messed up logic TODO
@@ -23,10 +23,10 @@ module Okey
           user.username = json["payload"]["username"]
           user.authenticated = true
 
-          @lounge = Lounge.new unless @lounge          
-          @lounge.join_lounge(user)
+          @lounge = Lounge.new(self) unless @lounge
+        @lounge.join_lounge(user)
         else
-          user.websocket.send result
+        user.websocket.send result
         end
 
       }

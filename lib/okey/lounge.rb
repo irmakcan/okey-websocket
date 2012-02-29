@@ -1,10 +1,10 @@
 module Okey
   class Lounge
-    def initialize
-      @player_count = 0
-      @lounge_channel = EM::Channel.new
-      @empty_rooms = []
-      @full_rooms = []
+    def initialize(user_controller)
+      @user_controller = user_controller
+      @online_player_count = 0
+      @empty_rooms = {}
+      @full_rooms = {}
     end
 
     def join_lounge(user)
@@ -23,11 +23,12 @@ module Okey
       # user.websocket.onclose {}
       # subscribe
       user.websocket.send({ :status => :success, :payload => { :message => "authentication success" }}.to_json)
-      @player_count += 1
+      @online_player_count += 1
     end
 
     def leave_lounge(user)
-
+      @online_player_count -= 1
+      @user_controller.subscribe(user)
     end
 
     def destroy_room(room)
@@ -43,7 +44,7 @@ module Okey
         if room_name.nil? || room_name.empty?
           raise ArgumentError, 'room name cannot be empty'
         end
-        join_room(json['room_name'])
+        join_room(json['room_name'], user)
       when 'refresh_list'
         send_room_json(user)
       when 'create_room'
@@ -51,19 +52,36 @@ module Okey
         if room_name.nil? || room_name.empty?
           raise ArgumentError, 'room name cannot be empty'
         end
-        create_and_join_room(json['room_name'])
+        create_and_join_room(room_name, user)
       else # Send err
         raise ArgumentError, 'messaging error'
       end
     end
 
-    def join_room(room_name)
-
-      #leave_lounge
+    def join_room(room_name, user)
+      room = @empty_rooms[room_name]
+      if room
+        room.join_room(user)
+        if room.full?
+          @full_rooms.merge!( {room.name => @empty_rooms.delete(room.name) })
+        end
+      else
+        if @full_rooms[room_name]
+          raise ArgumentError, 'room is full'
+        else
+          raise ArgumentError, 'cannot find the room'
+        end
+      end
     end
 
-    def create_and_join_room(room_name)
-
+    def create_and_join_room(room_name, user)
+      if @empty_rooms.has_key?(room_name) || @full_rooms.has_key?(room_name)
+        raise ArgumentError, 'room name is already taken'
+      else
+        room = Room.new(self, room_name, user)
+        @empty_rooms.merge!({ room_name => room })
+      end
+      
     end
 
     def send_room_json(user)
@@ -71,7 +89,7 @@ module Okey
       @empty_rooms.each { |room|
         room_list << { :room_name => room.name, :count => room.count }
       }
-      json = ({ :status => :lounge_update, :payload => { :list => room_list }}).to_json
+      json = ({ :status => :lounge_update, :payload => { :player_count => @online_player_count, :list => room_list }}).to_json
       user.websocket.send(json)
     end
 

@@ -125,6 +125,7 @@ describe Okey::UserController do
           done
         }
       end
+      it "should change the onclose Proc"
     end
   end
 
