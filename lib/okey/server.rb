@@ -1,7 +1,7 @@
 module Okey
   class Server
 
-    attr_reader :env, :host, :ws_host, :ws_port, :http_port, :version
+    attr_reader :env, :host, :ws_host, :ws_port, :http_port
     def self.start(opts = {})
       new(opts).start
     end
@@ -15,13 +15,16 @@ module Okey
       @ws_port    = (opts.delete(:ws_port) || 8080).to_i
       @http_port  = (opts.delete(:http_port) || 3000).to_i
 
-      @version    = (opts.delete(:version) || '0.0.0').to_s
+      @@version    = (opts.delete(:version) || '0.0.0').to_s
 
       @opts = opts
 
-      @user_controller = UserController.new(@version)
+      @user_controller = UserController.new
     end
 
+    def self.version
+      @@version || '0.0.0'
+    end
 
     def start
       EventMachine.run do

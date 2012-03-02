@@ -9,7 +9,7 @@ describe Okey::Server do
       server.http_port.should == 3000
       server.ws_host.should == '0.0.0.0'
       server.ws_port.should == 8080
-      server.version.should == '0.0.0'
+      Okey::Server.version.should == '0.0.0'
     end
 
     it "should accept options" do
@@ -26,7 +26,7 @@ describe Okey::Server do
       server.ws_host.should == '127.0.0.1'
       server.ws_port.should == 48080
       server.http_port.should == 45678
-      server.version.should == '0.1.1'
+      Okey::Server.version.should == '0.1.1'
     end
   end
 

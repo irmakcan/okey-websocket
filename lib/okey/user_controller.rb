@@ -1,7 +1,6 @@
 module Okey
   class UserController
-    def initialize(version)
-      @version = version
+    def initialize
 
     end
 
@@ -38,7 +37,7 @@ module Okey
       message = nil
 
       if json["action"] == "authenticate"
-        if json["payload"]["version"] != @version
+        if json["payload"]["version"] != Server.version
           # send version error TODO
           message = { :status => :error, :payload => { :message => "incompatible version" }}.to_json
         else

@@ -83,7 +83,8 @@ module Okey
       if @empty_rooms.has_key?(room_name) || @full_rooms.has_key?(room_name)
         raise ArgumentError, 'room name is already taken'
       else
-        room = Room.new(self, room_name, user)
+        room = Room.new(self, room_name)
+        room.join_room(user)
         @empty_rooms.merge!({ room_name => room })
       end
       

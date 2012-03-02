@@ -1,6 +1,6 @@
 module Okey
   class User
-    attr_accessor :username
+    attr_accessor :username, :sid
     attr_reader :websocket
     
     def initialize(websocket)

@@ -14,7 +14,7 @@ describe Okey::UserController do
     before(:each) do
       @user = Okey::User.new(FakeWebSocketClient.new({}))
       @json_attr = { :action => 'authenticate', :payload => { :version => '0.0.0', :username => 'irmak', :salt => 'qwerty' }}
-      controller = Okey::UserController.new('0.0.0')
+      controller = Okey::UserController.new
       controller.subscribe(@user)
     end
 

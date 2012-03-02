@@ -7,7 +7,7 @@ describe Okey::Lounge do
 
     it "should have default values" do
       em {
-        lounge = Okey::Lounge.new(Okey::UserController.new('0.0.0'))
+        lounge = Okey::Lounge.new(Okey::UserController.new)
         lounge.instance_variable_get(:@players).should be_instance_of(Set)
         lounge.instance_variable_get(:@empty_rooms).should == {}
         lounge.instance_variable_get(:@full_rooms).should == {}
@@ -26,7 +26,7 @@ describe Okey::Lounge do
 
     it "should send success json" do
       em {
-        Okey::Lounge.new(Okey::UserController.new('0.0.0')).join_lounge(@user)
+        Okey::Lounge.new(Okey::UserController.new).join_lounge(@user)
         # @user.websocket.get_onmessage.call("")
 
         json = @user.websocket.sent_data
@@ -40,7 +40,7 @@ describe Okey::Lounge do
 
     it "should increase the player count by one" do
       em {
-        @lounge = Okey::Lounge.new(Okey::UserController.new('0.0.0'))
+        @lounge = Okey::Lounge.new(Okey::UserController.new)
         count = @lounge.instance_variable_get(:@players).length
         @lounge.join_lounge(@user)
         @lounge.instance_variable_get(:@players).length.should == count + 1
@@ -50,7 +50,7 @@ describe Okey::Lounge do
 
     it "should change websocket procs" do
       em {
-        @lounge = Okey::Lounge.new(Okey::UserController.new('0.0.0'))
+        @lounge = Okey::Lounge.new(Okey::UserController.new)
         onmessage = @user.websocket.get_onmessage
         # onclose = @user.websocket.get_onclose
         # onerror = @user.websocket.get_onerror
@@ -73,7 +73,7 @@ describe Okey::Lounge do
       @create_json_attr = { :action => 'create_room', :room_name => 'new room'}
       @join_json_attr = { :action => 'join_room', :room_name => 'room1'}
       @leave_request_attr = { :action => 'leave_lounge' }
-      @lounge = Okey::Lounge.new(Okey::UserController.new('0.0.0'))
+      @lounge = Okey::Lounge.new(Okey::UserController.new)
       @lounge.join_lounge(@user)
       @user.websocket.sent_data = nil
     end
@@ -257,19 +257,14 @@ describe Okey::Lounge do
     describe "create room request" do
 
       describe "success" do
-        it "should create a new room with attributes" do
-          em {
-            Okey::Room.should_receive(:new).with(@lounge, @create_json_attr[:room_name], @user)
-            @user.websocket.get_onmessage.call((@create_json_attr).to_json)
-            done
-          }
-        end
 
-        it "should merge the room to the empty room hash" do
+        it "should create a new room and merge it to the empty room hash" do
           em {
             empty_rooms_length = @lounge.instance_variable_get(:@empty_rooms).length
             @user.websocket.get_onmessage.call((@create_json_attr).to_json)
-            @lounge.instance_variable_get(:@empty_rooms).length.should == empty_rooms_length + 1
+            empty_rooms = @lounge.instance_variable_get(:@empty_rooms)
+            empty_rooms.length.should == empty_rooms_length + 1
+            empty_rooms[@create_json_attr[:room_name]].should be_instance_of(Okey::Room)
             done
           }
         end
