@@ -1,10 +1,12 @@
+require 'set'
+
 module Okey
   class Lounge
     def initialize(user_controller)
       @user_controller = user_controller
-      @online_player_count = 0
       @empty_rooms = {}
       @full_rooms = {}
+      @players = Set.new
     end
 
     def join_lounge(user)
@@ -23,13 +25,14 @@ module Okey
       # user.websocket.onclose {}
       # subscribe
       user.websocket.send({ :status => :success, :payload => { :message => "authentication success" }}.to_json)
-      @online_player_count += 1
+      @players << user
     end
 
     def leave_lounge(user)
-      @online_player_count -= 1
+      @players.delete(user)
       @user_controller.subscribe(user)
     end
+     
 
     def destroy_room(room)
       @empty_rooms.delete(room)
@@ -53,6 +56,8 @@ module Okey
           raise ArgumentError, 'room name cannot be empty'
         end
         create_and_join_room(room_name, user)
+      when 'leave_lounge'
+        leave_lounge(user)
       else # Send err
         raise ArgumentError, 'messaging error'
       end
@@ -63,7 +68,7 @@ module Okey
       if room
         room.join_room(user)
         if room.full?
-          @full_rooms.merge!( {room.name => @empty_rooms.delete(room.name) })
+          @full_rooms.merge!({ room.name => @empty_rooms.delete(room.name) })
         end
       else
         if @full_rooms[room_name]
@@ -89,7 +94,7 @@ module Okey
       @empty_rooms.each { |room|
         room_list << { :room_name => room.name, :count => room.count }
       }
-      json = ({ :status => :lounge_update, :payload => { :player_count => @online_player_count, :list => room_list }}).to_json
+      json = ({ :status => :lounge_update, :payload => { :player_count => @players.length, :list => room_list }}).to_json
       user.websocket.send(json)
     end
 

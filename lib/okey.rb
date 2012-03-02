@@ -10,7 +10,7 @@ require "json"
 
 #%w[ state_machine timer server controller board move dispatch logger game web_server messaging ].each { |file| require "okey/#{file}" }
     
-%w[ server web_server user_controller user lounge room ].each { |file| require "okey/#{file}" }
+%w[ server web_server user_controller user lounge room table chair ].each { |file| require "okey/#{file}" }
 
 # %w[ client_connection socket web_socket ].each { |file| require "sudokill/client/#{file}" }
 

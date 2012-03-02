@@ -22,7 +22,21 @@ module Okey
       position        
     end
     
+    def remove_user(user)
+      @chairs.delete(user.cardinal)
+    end
     
+    def count
+      @chairs.length
+    end
+    
+    def full?
+      @chairs.length >= 4
+    end
+    
+    def empty?
+      @chairs.length <= 0
+    end
     
   end
 end

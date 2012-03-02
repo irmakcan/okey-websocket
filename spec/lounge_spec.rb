@@ -8,7 +8,7 @@ describe Okey::Lounge do
     it "should have default values" do
       em {
         lounge = Okey::Lounge.new(Okey::UserController.new('0.0.0'))
-        lounge.instance_variable_get(:@online_player_count).should == 0
+        lounge.instance_variable_get(:@players).should be_instance_of(Set)
         lounge.instance_variable_get(:@empty_rooms).should == {}
         lounge.instance_variable_get(:@full_rooms).should == {}
 
@@ -41,9 +41,9 @@ describe Okey::Lounge do
     it "should increase the player count by one" do
       em {
         @lounge = Okey::Lounge.new(Okey::UserController.new('0.0.0'))
-        count = @lounge.instance_variable_get(:@online_player_count)
+        count = @lounge.instance_variable_get(:@players).length
         @lounge.join_lounge(@user)
-        @lounge.instance_variable_get(:@online_player_count).should == count + 1
+        @lounge.instance_variable_get(:@players).length.should == count + 1
         done
       }
     end
@@ -52,8 +52,8 @@ describe Okey::Lounge do
       em {
         @lounge = Okey::Lounge.new(Okey::UserController.new('0.0.0'))
         onmessage = @user.websocket.get_onmessage
-        onclose = @user.websocket.get_onclose
-        onerror = @user.websocket.get_onerror
+        # onclose = @user.websocket.get_onclose
+        # onerror = @user.websocket.get_onerror
         @lounge.join_lounge(@user)
         @user.websocket.get_onmessage.should_not == onmessage
         # @user.websocket.get_onclose.should_not == onclose TODO
@@ -72,6 +72,7 @@ describe Okey::Lounge do
       @refresh_request_attr = { :action => 'refresh_list' }
       @create_json_attr = { :action => 'create_room', :room_name => 'new room'}
       @join_json_attr = { :action => 'join_room', :room_name => 'room1'}
+      @leave_request_attr = { :action => 'leave_lounge' }
       @lounge = Okey::Lounge.new(Okey::UserController.new('0.0.0'))
       @lounge.join_lounge(@user)
       @user.websocket.sent_data = nil
@@ -120,6 +121,32 @@ describe Okey::Lounge do
 
     end
 
+    describe "leave request" do
+
+      it "should decrease the online players count by one" do
+        em {
+          count = @lounge.instance_variable_get(:@players).length
+          @user.websocket.get_onmessage.call(@leave_request_attr.to_json)
+          @lounge.instance_variable_get(:@players).length.should == count - 1
+          done
+        }
+      end
+
+      it "should subscribe to user controller and change the websocket procs" do
+        em {
+          onmessage = @user.websocket.get_onmessage
+          # onclose = @user.websocket.get_onclose
+          # onerror = @user.websocket.get_onerror
+ 
+          @user.websocket.get_onmessage.call(@leave_request_attr.to_json)
+
+          @user.websocket.get_onmessage.should_not == onmessage
+          done
+        }
+      end
+
+    end
+
     describe "update request" do
 
       it "should send appropriate json" do
@@ -130,7 +157,7 @@ describe Okey::Lounge do
 
           parsed["status"].should == "lounge_update"
           parsed["payload"]["list"].should be_instance_of(Array)
-          parsed["payload"]["player_count"].to_i.should == @lounge.instance_variable_get(:@online_player_count)
+          parsed["payload"]["player_count"].to_i.should == @lounge.instance_variable_get(:@players).length
           done
         }
       end
@@ -161,29 +188,29 @@ describe Okey::Lounge do
       end
 
       describe "failure" do
-        
+
         it "should return error json if the room is full" do
           em {
             user1 = Okey::User.new(FakeWebSocketClient.new({}))
             user2 = Okey::User.new(FakeWebSocketClient.new({}))
             user3 = Okey::User.new(FakeWebSocketClient.new({}))
             user4 = Okey::User.new(FakeWebSocketClient.new({}))
-            
+
             @lounge.join_lounge(user1)
             @lounge.join_lounge(user2)
             @lounge.join_lounge(user3)
             @lounge.join_lounge(user4)
             user1.websocket.get_onmessage.call((@create_json_attr).to_json) # create room
-            
+
             @join_json_attr.merge!({ :room_name => @create_json_attr[:room_name] })
             user2.websocket.get_onmessage.call((@join_json_attr).to_json) # join room
             user3.websocket.get_onmessage.call((@join_json_attr).to_json) # join room
             user4.websocket.get_onmessage.call((@join_json_attr).to_json) # join room
-            
+
             @user.websocket.get_onmessage.call((@join_json_attr).to_json) # join room
             json = @user.websocket.sent_data
             parsed = JSON.parse(json)
-            
+
             parsed["status"].should == "error"
             parsed["payload"]["message"].should == "room is full"
             done
@@ -195,13 +222,13 @@ describe Okey::Lounge do
             @user.websocket.get_onmessage.call((@join_json_attr).to_json) # join room
             json = @user.websocket.sent_data
             parsed = JSON.parse(json)
-            
+
             parsed["status"].should == "error"
             parsed["payload"]["message"].should == "cannot find the room"
             done
           }
         end
-        
+
       end
 
       it "should send an error json if the room field is nil or empty" do
