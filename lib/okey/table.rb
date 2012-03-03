@@ -1,7 +1,7 @@
 
 module Okey
   class Table
-    
+    attr_reader :chairs
     def initialize
       @chairs = {}
     end
@@ -22,8 +22,8 @@ module Okey
       position        
     end
     
-    def remove_user(user)
-      @chairs.delete(user.cardinal)
+    def remove(cardinal)
+      @chairs.delete(cardinal)
     end
     
     def count

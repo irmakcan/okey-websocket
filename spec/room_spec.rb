@@ -66,7 +66,26 @@ describe Okey::Room do
       }
     end
     
-    it "should push message to channel about the new user"
+    it "should set user's position" do
+      em {
+        @room.join_room(@user)
+        @user.position.should_not be_nil
+        done
+      }
+    end
+    
+    it "should push message to channel about the new user" do
+      em {
+        @user.username = 'example_user'
+        @room.join_room(@user)
+        json = @user.websocket.sent_data
+        parsed = JSON.parse(json)
+        
+        parsed['action'].should == 'chair_state'
+        parsed['users'].should be_instance_of(Array)
+        done
+      }
+    end
     
     it "should initialize the game if the room is full"
     # it "should send success json" do
@@ -87,7 +106,29 @@ describe Okey::Room do
   
   describe "leave" do
     
-    it "should inform the channel"
+    before(:each) do
+      @room_name = "new room"
+      @user = Okey::User.new(FakeWebSocketClient.new({}))
+      @room = Okey::Room.new(Okey::Lounge.new(Okey::UserController.new), @room_name)
+      @user.username = 'example_user'
+      
+    end
+    
+    it "should inform the channel" do
+      em {
+        @room.join_room(@user)
+        user1 = Okey::User.new(FakeWebSocketClient.new({}))
+        @room.join_room(user1)
+        @user.websocket.sent_data = nil
+        @room.leave_room(user1)
+        json = @user.websocket.sent_data
+        parsed = JSON.parse(json)
+        
+        parsed['action'].should == 'chair_state'
+        parsed['users'].should be_instance_of(Array)
+        done
+      }
+    end
     
     it "should add AI if the game is already started"
     
@@ -96,6 +137,8 @@ describe Okey::Room do
     it "should unsubscribe user's sid from channel"
     
     it "should remove user from the table"
+    
+    it "should destroy the room from the lounge if empty"
     
   end
   

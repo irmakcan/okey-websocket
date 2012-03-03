@@ -16,24 +16,24 @@ module Okey
         ""
       }
       #user.websocket.onclose {}
-      @table.add_user(user)
+      user.position = @table.add_user(user)
       # publish user with location
-      # @room_channel.push()
+      @room_channel.push(ChairStateMessage.getJSON(@table.chairs))
     end
 
     def leave_room(user)
-      @table.remove_user(user)
+      @table.remove(user.position)
       if @table.empty?
         @lounge.destroy_room(self)
       end
       @room_channel.unsubscribe(user.sid)
       # publish leaved
-      # @room_channel.push() leaved message
+      @room_channel.push(ChairStateMessage.getJSON(@table.chairs))
       @lounge.join_lounge(user)
     end
 
     def count
-      3 # TODO
+      @table.count
     end
 
     def full?
