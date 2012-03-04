@@ -87,7 +87,11 @@ describe Okey::Room do
       }
     end
     
-    it "should initialize the game if the room is full"
+    it "should initialize the game if the room is full" do
+      em {
+        done
+      }
+    end
     # it "should send success json" do
       # em {
         # Okey::Lounge.new(Okey::UserController.new('0.0.0')).join_lounge(@user)
@@ -102,6 +106,8 @@ describe Okey::Room do
       # }
     # end
     
+    # it "should replace the AI with the new user"
+    
   end
   
   describe "leave" do
@@ -111,7 +117,6 @@ describe Okey::Room do
       @user = Okey::User.new(FakeWebSocketClient.new({}))
       @room = Okey::Room.new(Okey::Lounge.new(Okey::UserController.new), @room_name)
       @user.username = 'example_user'
-      
     end
     
     it "should inform the channel" do
@@ -132,13 +137,45 @@ describe Okey::Room do
     
     it "should add AI if the game is already started"
     
-    it "should add user to lounge"
+    it "should add user to lounge" do
+      em {
+        @room.join_room(@user)
+        @room.instance_variable_get(:@lounge).should_receive(:join_lounge).with(@user)
+        @room.leave_room(@user)
+        
+        done
+      }
+    end
     
-    it "should unsubscribe user's sid from channel"
+    it "should unsubscribe user's sid from channel" do
+      em {
+        @room.join_room(@user)
+        room_channel = @room.instance_variable_get(:@room_channel)
+        room_channel.should_receive(:unsubscribe).with(@user.sid)
+        @room.leave_room(@user)
+        done
+      }
+    end
     
-    it "should remove user from the table"
+    it "should remove user from the table" do
+      em {
+        @room.join_room(@user)
+        table = @room.instance_variable_get(:@table)
+        table.should_receive(:remove).with(@user.position)
+        @room.leave_room(@user)
+        done
+      }
+    end
     
-    it "should destroy the room from the lounge if empty"
+    it "should destroy the room from the lounge if empty" do
+      em {
+        @room.join_room(@user)
+        lounge = @room.instance_variable_get(:@lounge)
+        lounge.should_receive(:destroy_room).with(@room)
+        @room.leave_room(@user)
+        done
+      }
+    end
     
   end
   

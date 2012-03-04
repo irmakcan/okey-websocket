@@ -19,6 +19,7 @@ module Okey
       user.position = @table.add_user(user)
       # publish user with location
       @room_channel.push(ChairStateMessage.getJSON(@table.chairs))
+      
     end
 
     def leave_room(user)

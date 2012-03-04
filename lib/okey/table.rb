@@ -11,7 +11,7 @@ module Okey
       index = 0
       position = nil
       while index < 4
-        key = Chair::CARDINALS[index]
+        key = Chair::POSITIONS[index]
         if !@chairs.has_key?(key)
           position = key
           @chairs.merge!({ key => user})
@@ -22,8 +22,12 @@ module Okey
       position        
     end
     
-    def remove(cardinal)
-      @chairs.delete(cardinal)
+    def get_user(position)
+      @chairs[position]
+    end
+    
+    def remove(position)
+      @chairs.delete(position)
     end
     
     def count
