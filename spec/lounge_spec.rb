@@ -11,7 +11,6 @@ describe Okey::Lounge do
         lounge.instance_variable_get(:@players).should be_instance_of(Set)
         lounge.instance_variable_get(:@empty_rooms).should == {}
         lounge.instance_variable_get(:@full_rooms).should == {}
-
         done
       }
     end

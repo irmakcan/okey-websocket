@@ -10,6 +10,7 @@ module Okey
     
     def initialize
       @bag = []
+      @hands = {}
       @corner_tiles = { :se => [], :ne => [], :nw => [], :sw => [] }
       tile_factory = TileFactory.instance
       2.times do
@@ -61,10 +62,30 @@ module Okey
       end
     end
     
+    def center_tile_left
+      @bag.length
+    end
+    
     # check for the end
     # def throw_tile_finish(position, tile)
 #       
     # end
+    
+  end
+  
+  class TileParser
+    def self.parse(string)
+      return nil unless string =~ /^\d+:\d$/
+      t = string.split(':')
+      t.collect! { |str| str.to_i }
+      tile_factory = TileFactory.instance
+      if Tile::RANGE.include?(t[0])
+        return tile_factory.get(t[0], t[1]) if Tile::COLORS.include?(t[1])
+      elsif t[0] == 0 # Joker
+        return tile_factory.get(t[0], t[1]) if t[1] == Tile::BLACK || t[1] == Tile::ORANGE
+      end
+      nil          
+    end
     
   end
   

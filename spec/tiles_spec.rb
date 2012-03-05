@@ -25,6 +25,26 @@ describe "tiles" do
     end
     
   end
+  
+  describe Okey::TileParser do
+    
+    it "should return appropriate tiles" do
+      tile_bag = Okey::TileBag.new
+      tile_bag.instance_variable_get(:@bag).each do |tile|
+        t_parsed = Okey::TileParser.parse(tile.to_s)
+        tile.should equal(t_parsed)
+      end
+    end
+    
+    it "should return nil on unexpected strings" do
+      ary = ['', '-1:0', '14:0', '0:2', '0:3', '1:-1', '1:4', '1:3:1', ':', '::', '12', '123', ':3:2', ' ']
+      ary.each do |string|
+        t_parsed = Okey::TileParser.parse(string)
+        t_parsed.should == nil
+      end
+    end
+    
+  end
 
   describe Okey::Tile do
 
