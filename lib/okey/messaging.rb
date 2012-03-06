@@ -5,6 +5,12 @@ module Okey
     end
   end
   
+  class AuthenticationMessage
+    def self.getJSON(status, state_def, message)
+      { :status => status, :payload => { :message => message }}.to_json
+    end
+  end
+  
   class ChairStateMessage < ResponseMessage
     def self.action; 'chair_state'; end
     

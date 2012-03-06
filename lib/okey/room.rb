@@ -55,7 +55,12 @@ module Okey
     def handle_request(user, json)
       case json['action']
       when 'throw_tile'
-        # @game.throw_tile(user, tile, finish) TODO
+        tile = TileParser.parse(json['tile'])
+        finish = json['finish']
+        if tile.nil? || finish.nil?
+          raise ArgumentError, 'invalid tile'
+        end
+        @game.throw_tile(user, tile, finish) 
       when 'leave_room'
         # leave_room(user) TODO
         # @game replace AI

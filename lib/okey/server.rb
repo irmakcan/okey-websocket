@@ -36,13 +36,7 @@ module Okey
           puts 'Establishing websocket'
           ws.onopen do
             user = User.new(ws)
-
-            puts 'client connected'
-            puts 'subscribing to channel'
-
             @user_controller.subscribe(user)
-            #room = @room_factory.get_room
-            #room.join(user)
           end
         end
         WebServer.run!(:bind => @host, :port => @http_port, :ws_port => @ws_port, :environment => @env)

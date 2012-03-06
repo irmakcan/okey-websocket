@@ -14,8 +14,19 @@ module Okey
     
     def throw_tile(user, tile, finish)
       raise 'not your turn' if @turn != user.position
-      # check_move(user, tile, finish)
+      if check_move(user, tile, finish)
+        if finish
+          
+        else
+          @tile_bag.throw_tile(user.position, tile)
+        end
+        
+      end
       
+    end
+    
+    def check_move(user, tile, finish)
+      true
     end
     # def reset_game
 
