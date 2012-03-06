@@ -56,7 +56,7 @@ module Okey
         return LoungeMessage.getJSON(:error, nil, 'room name cannot be empty') if room_name.nil? || room_name.empty?
         error = create_and_join_room(room_name, user)
       when 'leave_lounge'
-        error = leave_lounge(user)
+        leave_lounge(user)
       else # Send err
         return LoungeMessage.getJSON(:error, nil, 'messaging error')
       end

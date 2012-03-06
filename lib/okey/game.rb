@@ -13,22 +13,16 @@ module Okey
     end
     
     def throw_tile(user, tile, finish)
-      raise 'not your turn' if @turn != user.position
-      if check_move(user, tile, finish)
-        if finish
-          
-        else
-          @tile_bag.throw_tile(user.position, tile)
-        end
-        
+      return GameMessage.getJSON(:error, nil, 'not your turn') if @turn != user.position
+      if finish
+        result = @tile_bag.throw_tile_center(user.position, tile)
+      else
+        result = @tile_bag.throw_tile(user.position, tile)
       end
       
+      return GameMessage.getJSON(:error, nil, 'invalid move') unless result 
+      nil
     end
     
-    def check_move(user, tile, finish)
-      true
-    end
-    # def reset_game
-
   end
 end

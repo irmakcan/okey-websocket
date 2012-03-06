@@ -62,6 +62,10 @@ module Okey
       end
     end
     
+    def throw_tile_center(position, tile)
+      # TODO
+    end
+    
     def center_tile_left
       @bag.length
     end

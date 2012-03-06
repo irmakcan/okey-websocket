@@ -17,6 +17,25 @@ module Okey
     end
   end
   
+  class RoomMessage
+    def self.getJSON(status, state_def, message)
+      { :status => status, :payload => { :message => message }}.to_json
+    end
+  end
+  
+  class GameMessage
+    def self.getJSON(status, state_def, message)
+      { :status => status, :payload => { :message => message }}.to_json
+    end
+  end
+
+  
+  class RoomChannelMessage
+    # def self.getJSON(status, state_def, message)
+      # { :status => status, :payload => { :message => message }}.to_json
+    # end
+  end
+  
   class ChairStateMessage < ResponseMessage
     def self.action; 'chair_state'; end
     
