@@ -12,15 +12,41 @@ module Okey
       }
     end
     
-    def throw_tile(user, tile, finish)
+    def throw_tile(user, tile)
       return GameMessage.getJSON(:error, nil, 'not your turn') if @turn != user.position
-      if finish
-        result = @tile_bag.throw_tile_center(user.position, tile)
+      
+      success = @tile_bag.throw_tile(user.position, tile)
+      
+      if !success
+        return GameMessage.getJSON(:error, nil, 'invalid move')
       else
-        result = @tile_bag.throw_tile(user.position, tile)
+        @turn = Chair.next(user.position)
+        @channel.push({ :action => :throw_tile, :turn => @turn, :tile => tile.to_s, :corner => TileBag::RIGHT_CORNER[user.position] }.to_json)
+      end 
+      nil
+    end
+    
+    def throw_to_finish(user, hand, tile)
+      # TODO
+    end
+    
+    def draw_tile(user, center)
+      return GameMessage.getJSON(:error, nil, 'not your turn') if @turn != user.position
+      if center
+        success = @tile_bag.draw_middle_tile(user.position)
+      else
+        success = @tile_bag.draw_left_tile(user.position)
       end
       
-      return GameMessage.getJSON(:error, nil, 'invalid move') unless result 
+      if !success
+        return GameMessage.getJSON(:error, nil, 'invalid move')
+      else
+        @channel.push({ :action =>       :draw_tile, 
+                        :turn =>         user.position, 
+                        :center =>       center, 
+                        :center_count => @tile_bag.center_tile_left,
+                        :corner => TileBag::LEFT_CORNER[user.position] }.to_json)
+      end
       nil
     end
     

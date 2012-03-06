@@ -32,37 +32,30 @@ module Okey
     end
     
     def draw_middle_tile(position)
-      if @hands[position].length != 14
-        return nil
-      end
+      return false if @hands[position].length != 14 || @bag.empty?
       tile = @bag.shift
       @hands[position] << tile
-      tile
+      true
     end
     
-    def draw_left_tile(position, tile)
-      if @hands[position].length != 14
-        return nil
-      end
-      if @corner_tiles[LEFT_CORNER[position]].last == tile
-        t = @corner_tiles[LEFT_CORNER[position]].pop
-        @hands[position] << t
-        return t
-      end
+    def draw_left_tile(position)
+      return false if @hands[position].length != 14 || @corner_tiles[LEFT_CORNER[position]].empty?
+      t = @corner_tiles[LEFT_CORNER[position]].pop
+      @hands[position] << t
+      true
     end
     
     def throw_tile(position, tile)
-      if @hands[position].length != 15
-        return nil
-      end
-      if @hands[position].include?(tile)
-        t = @hands[position].delete(tile)
-        @corner_tiles[RIGHT_CORNER[position]].push(t)
-        return t
-      end
+      return false if @hands[position].length != 15 || !@hands[position].include?(tile)
+      t = @hands[position].delete(tile)
+      @corner_tiles[RIGHT_CORNER[position]].push(t)
+      true
     end
     
-    def throw_tile_center(position, tile)
+    # hand => array of grouped tiles array
+    def throw_tile_center(position, hand, tile)
+      return false if @hands[position].length != 15
+      # check the hand for finish
       # TODO
     end
     

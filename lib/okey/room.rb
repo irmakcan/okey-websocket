@@ -60,9 +60,28 @@ module Okey
       case json['action']
       when 'throw_tile'
         tile = TileParser.parse(json['tile'])
-        finish = json['finish']
-        return RoomMessage.getJSON(:error, nil, 'messaging error') if tile.nil? || finish.nil?
-        error = @game.throw_tile(user, tile, finish) # returns logical error if occurs
+        return RoomMessage.getJSON(:error, nil, 'messaging error') if tile.nil?
+        error = @game.throw_tile(user, tile) # returns logical error if occurs
+      when 'draw_tile'
+        center = json['center']
+        return RoomMessage.getJSON(:error, nil, 'messaging error') if center.nil?
+        error = @game.draw_tile(user, center)
+      when 'throw_to_finish'
+        tile = TileParser.parse(json['tile'])
+        raw_hand = json['hand']
+        return RoomMessage.getJSON(:error, nil, 'messaging error') if tile.nil? || !raw_hand.is_a?(Array) || raw_hand.empty?
+        hand = []
+        raw_hand.each do |raw_group|
+          return RoomMessage.getJSON(:error, nil, 'messaging error') if !raw_group.is_a?(Array) || raw_group.empty?
+          group = []
+          raw_group.each do |raw_tile|
+            t = TileParser.parse(raw_tile)
+            return RoomMessage.getJSON(:error, nil, 'messaging error') if t.nil?
+            group << t
+          end
+          hand << group
+        end
+        error = @game.throw_to_finish(user, hand, tile)
       when 'leave_room'
         # leave_room(user) TODO
         # @game replace AI
