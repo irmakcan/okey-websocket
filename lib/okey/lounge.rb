@@ -11,15 +11,9 @@ module Okey
 
     def join_lounge(user)
       user.websocket.onmessage{ |msg|
-        begin
-          json = JSON.parse(msg)
-          handle_request(user, json)
-        rescue JSON::ParserError
-          result = { :status => :error, :payload => { :message => "messaging error" }}.to_json
-          user.websocket.send(result)
-        rescue ArgumentError => message
-          result = { :status => :error, :payload => { :message => message }}.to_json
-          user.websocket.send(result)
+        error = handle_request(user, msg)
+        if error
+          user.websocket.send error
         end
       }
       # user.websocket.onclose {}
@@ -40,54 +34,54 @@ module Okey
 
     private
 
-    def handle_request(user, json)
+    def handle_request(user, msg)
+      json = nil
+      begin
+        json = JSON.parse(msg)
+      rescue JSON::ParserError
+        json = nil
+      end
+      
+      return LoungeMessage.getJSON(:error, nil, 'messaging error') if json.nil?
+      error = nil
       case json['action']
       when 'join_room'
         room_name = json['room_name']
-        if room_name.nil? || room_name.empty?
-          raise ArgumentError, 'room name cannot be empty'
-        end
-        join_room(json['room_name'], user)
+        return LoungeMessage.getJSON(:error, nil, 'room name cannot be empty') if room_name.nil? || room_name.empty?
+        error = join_room(json['room_name'], user)
       when 'refresh_list'
         send_room_json(user)
       when 'create_room'
         room_name = json['room_name']
-        if room_name.nil? || room_name.empty?
-          raise ArgumentError, 'room name cannot be empty'
-        end
-        create_and_join_room(room_name, user)
+        return LoungeMessage.getJSON(:error, nil, 'room name cannot be empty') if room_name.nil? || room_name.empty?
+        error = create_and_join_room(room_name, user)
       when 'leave_lounge'
-        leave_lounge(user)
+        error = leave_lounge(user)
       else # Send err
-        raise ArgumentError, 'messaging error'
+        return LoungeMessage.getJSON(:error, nil, 'messaging error')
       end
+      error
     end
 
     def join_room(room_name, user)
       room = @empty_rooms[room_name]
-      if room
-        room.join_room(user)
-        if room.full?
-          @full_rooms.merge!({ room.name => @empty_rooms.delete(room.name) })
-        end
-      else
-        if @full_rooms[room_name]
-          raise ArgumentError, 'room is full'
-        else
-          raise ArgumentError, 'cannot find the room'
-        end
+      
+      return LoungeMessage.getJSON(:error, nil, (@full_rooms[room_name].nil? ? 'cannot find the room' : 'room is full')) unless room
+      room.join_room(user)
+      if room.full?
+        @full_rooms.merge!({ room.name => @empty_rooms.delete(room.name) })
       end
+      nil
     end
 
     def create_and_join_room(room_name, user)
-      if @empty_rooms.has_key?(room_name) || @full_rooms.has_key?(room_name)
-        raise ArgumentError, 'room name is already taken'
-      else
-        room = Room.new(self, room_name)
-        room.join_room(user)
-        @empty_rooms.merge!({ room_name => room })
-      end
+      return LoungeMessage.getJSON(:error, nil, 'room name is already taken') if @empty_rooms.has_key?(room_name) || @full_rooms.has_key?(room_name)
       
+      room = Room.new(self, room_name)
+      room.join_room(user)
+      @empty_rooms.merge!({ room_name => room })
+      
+      nil
     end
 
     def send_room_json(user)

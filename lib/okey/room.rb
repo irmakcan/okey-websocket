@@ -13,16 +13,7 @@ module Okey
         user.websocket.send(msg)
       }
       user.websocket.onmessage { |msg|
-        begin
-          json = JSON.parse(msg)
-          handle_request(user, json)
-        rescue JSON::ParserError
-          result = { :status => :error, :payload => { :message => "messaging error" }}.to_json
-          user.websocket.send(result)
-        rescue ArgumentError => message
-          result = { :status => :error, :payload => { :message => message }}.to_json
-          user.websocket.send(result)
-        end
+        handle_request(user, msg)
       }
       #user.websocket.onclose {}
       user.position = @table.add_user(user)
@@ -53,6 +44,17 @@ module Okey
     private
 
     def handle_request(user, json)
+      begin
+        json = JSON.parse(msg)
+      rescue JSON::ParserError
+        json = nil
+      end
+      if json.nil?
+        result = { :status => :error, :payload => { :message => "messaging error" }}.to_json
+        user.websocket.send(result)
+        return
+      end
+      
       case json['action']
       when 'throw_tile'
         tile = TileParser.parse(json['tile'])
@@ -65,7 +67,8 @@ module Okey
         # leave_room(user) TODO
         # @game replace AI
       else # Send err
-        raise ArgumentError, 'messaging error'
+        result = { :status => :error, :payload => { :message => message }}.to_json
+        user.websocket.send(result)
       end
     end
 
