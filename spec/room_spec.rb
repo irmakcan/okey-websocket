@@ -44,7 +44,7 @@ describe Okey::Room do
       em {
         @room.join_room(@user)
         @user.websocket.get_onmessage.should_not == nil
-        #@user.websocket.get_onclose.should_not == nil
+        #@user.websocket.get_onclose.should_not == nil TODO
         done
       }
     end
@@ -75,23 +75,69 @@ describe Okey::Room do
     end
     
     it "should push message to channel about the new user" do
-      em {
-        @user.username = 'example_user'
-        @room.join_room(@user)
-        json = @user.websocket.sent_data
-        parsed = JSON.parse(json)
-        
-        parsed['action'].should == 'chair_state'
-        parsed['users'].should be_instance_of(Array)
-        done
-      }
+      # em {
+        # @user.username = 'example_user'
+        # @room.join_room(@user)
+        # json = @user.websocket.sent_data
+        # parsed = JSON.parse(json)
+#         
+        # parsed['action'].should == 'chair_state'
+        # parsed['users'].should be_instance_of(Array)
+        # done
+      # }
     end
     
     it "should initialize the game if the room is full" do
       em {
+        @room.join_room(@user)
+        
+        user1 = Okey::User.new(FakeWebSocketClient.new({}))
+        user2 = Okey::User.new(FakeWebSocketClient.new({}))
+        user3 = Okey::User.new(FakeWebSocketClient.new({}))
+
+        @room.join_room(user1)
+        @room.join_room(user2)
+        Okey::Game.should_receive(:new).with(@room.instance_variable_get(:@room_channel), @room.instance_variable_get(:@table))
+        @room.join_room(user3)
+        
         done
       }
     end
+    
+    it "should send a success message with users positions" do
+      em {
+        @room.join_room(@user)
+        json = @user.websocket.sent_data
+        parsed = JSON.parse(json)
+        
+        parsed['action'].should == 'join_room'
+        Okey::Chair::POSITIONS.should include(parsed['position'].to_sym)
+        parsed['users'].should be_instance_of(Array)
+        
+        done
+      }
+    end
+    
+    it "should send a new_user message when a new user is joined" do
+      em {
+        @room.join_room(@user)
+        @user.websocket.sent_data = nil
+        
+        user1 = Okey::User.new(FakeWebSocketClient.new({}))
+        user1.username = "new user"
+        @room.join_room(user1)
+        
+        json = @user.websocket.sent_data
+        parsed = JSON.parse(json)
+        
+        parsed['action'].should == 'new_user'
+        Okey::Chair::POSITIONS.should include(parsed['position'].to_sym)
+        parsed['username'].should == user1.username
+
+        done
+      }
+    end
+    
     # it "should send success json" do
       # em {
         # Okey::Lounge.new(Okey::UserController.new('0.0.0')).join_lounge(@user)

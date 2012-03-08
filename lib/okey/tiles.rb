@@ -4,14 +4,15 @@ module Okey
   class TileBag
     NUM_OF_TILES = 106
     RIGHT_CORNER = { :south => :se, :east => :ne, :north => :nw, :west => :sw }
-    LEFT_CORNER = { :south => :sw, :east => :se, :north => :ne, :west => :nw }
+    LEFT_CORNER  = { :south => :sw, :east => :se, :north => :ne, :west => :nw }
     
-    attr_reader :hands
+    attr_reader :hands, :indicator
     
     def initialize
       @bag = []
       @hands = {}
       @corner_tiles = { :se => [], :ne => [], :nw => [], :sw => [] }
+      
       tile_factory = TileFactory.instance
       2.times do
         Tile::COLORS.each do |color|
@@ -29,6 +30,7 @@ module Okey
       chairs.each_key do |position|
         @hands.merge!({ position => @bag.shift((position == starting_position ? 15 : 14)) })
       end
+      @indicator = @bag.shift
     end
     
     def draw_middle_tile(position)

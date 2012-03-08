@@ -20,8 +20,14 @@ module Okey
       }
       #user.websocket.onclose {}
       user.position = @table.add_user(user)
+      # Send his location and table infos
+      user.websocket.send(JoinResponseMessage.getJSON(user, @table.chairs))
       # publish user with location
-      @room_channel.push(ChairStateMessage.getJSON(@table.chairs))
+      channel_msg = JoinChannelMessage.getJSON(user)
+      @table.chairs.each do |position, usr|
+        usr.websocket.send(channel_msg) if user.position != position
+      end
+      # start game
       if @table.full? && @game.nil?
         @game = Game.new(@room_channel, @table)
       end
@@ -46,7 +52,7 @@ module Okey
 
     private
 
-    def handle_request(user, json)
+    def handle_request(user, msg)
       json = nil
       begin
         json = JSON.parse(msg)
@@ -69,19 +75,8 @@ module Okey
       when 'throw_to_finish'
         tile = TileParser.parse(json['tile'])
         raw_hand = json['hand']
-        return RoomMessage.getJSON(:error, nil, 'messaging error') if tile.nil? || !raw_hand.is_a?(Array) || raw_hand.empty?
-        hand = []
-        raw_hand.each do |raw_group|
-          return RoomMessage.getJSON(:error, nil, 'messaging error') if !raw_group.is_a?(Array) || raw_group.empty?
-          group = []
-          raw_group.each do |raw_tile|
-            t = TileParser.parse(raw_tile)
-            return RoomMessage.getJSON(:error, nil, 'messaging error') if t.nil?
-            group << t
-          end
-          hand << group
-        end
-        error = @game.throw_to_finish(user, hand, tile)
+        return RoomMessage.getJSON(:error, nil, 'messaging error') if tile.nil?
+        error = @game.throw_to_finish(user, tile)
       when 'leave_room'
         # leave_room(user) TODO
         # @game replace AI

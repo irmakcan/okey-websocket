@@ -5,11 +5,14 @@ module Okey
       @table = table
       @turn = :south
       @tile_bag = TileBag.new
-      @tile_bag.distibute_tiles(@table.chairs, @turn) # TODO change starting position
+      @tile_bag.distibute_tiles(@table.chairs, @turn)
       
-      @table.chairs.each { |position, user|
-        user.websocket.send(GameStartingMessage.getJSON(user.position == @turn, @tile_bag.center_tile_left, user.position))
-      }
+      @table.chairs.each do |position, user|
+        user.websocket.send(GameStartingMessage.getJSON(user.position == @turn, 
+                                                        @tile_bag.center_tile_left, 
+                                                        @tile_bag.hands[user.position],
+                                                        @tile_bag.indicator))
+      end
     end
     
     def throw_tile(user, tile)
@@ -26,7 +29,7 @@ module Okey
       nil
     end
     
-    def throw_to_finish(user, hand, tile)
+    def throw_to_finish(user, tile)
       # TODO
     end
     
