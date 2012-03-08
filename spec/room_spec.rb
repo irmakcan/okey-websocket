@@ -74,19 +74,6 @@ describe Okey::Room do
       }
     end
     
-    it "should push message to channel about the new user" do
-      # em {
-        # @user.username = 'example_user'
-        # @room.join_room(@user)
-        # json = @user.websocket.sent_data
-        # parsed = JSON.parse(json)
-#         
-        # parsed['action'].should == 'chair_state'
-        # parsed['users'].should be_instance_of(Array)
-        # done
-      # }
-    end
-    
     it "should initialize the game if the room is full" do
       em {
         @room.join_room(@user)
@@ -138,20 +125,6 @@ describe Okey::Room do
       }
     end
     
-    # it "should send success json" do
-      # em {
-        # Okey::Lounge.new(Okey::UserController.new('0.0.0')).join_lounge(@user)
-        # # @user.websocket.get_onmessage.call("")
-# 
-        # json = @user.websocket.sent_data
-        # parsed = JSON.parse(json)
-        # parsed["status"].should == "success"
-        # parsed["payload"]["message"].should == "authentication success"
-# 
-        # done
-      # }
-    # end
-    
     # it "should replace the AI with the new user"
     
   end
@@ -175,8 +148,9 @@ describe Okey::Room do
         json = @user.websocket.sent_data
         parsed = JSON.parse(json)
         
-        parsed['action'].should == 'chair_state'
-        parsed['users'].should be_instance_of(Array)
+        parsed['action'].should == 'user_leave'
+        parsed['position'].to_sym.should == user1.position
+        parsed['replaced_username'].should == "AI" # TODO
         done
       }
     end

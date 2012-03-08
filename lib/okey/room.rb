@@ -38,7 +38,7 @@ module Okey
       @lounge.destroy_room(self) if @table.empty?
       @room_channel.unsubscribe(user.sid)
       # publish leaved
-      @room_channel.push(ChairStateMessage.getJSON(@table.chairs))
+      @room_channel.push(LeaveChannelMessage.getJSON(user.position, "AI")) # Will be real AI TODO
       @lounge.join_lounge(user)
     end
 

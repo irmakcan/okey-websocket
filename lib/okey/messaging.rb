@@ -36,17 +36,17 @@ module Okey
     # end
   end
   
-  class ChairStateMessage < ResponseMessage
-    def self.action; 'chair_state'; end
-    
-    def self.getJSON(chairs)
-      name_position = []
-      chairs.each { |position, user|
-        name_position << { :name => user.username, :position => position }
-      }
-      { :action => action, :users => name_position }.to_json
-    end
-  end
+  # class ChairStateMessage < ResponseMessage
+    # def self.action; 'chair_state'; end
+#     
+    # def self.getJSON(chairs)
+      # name_position = []
+      # chairs.each { |position, user|
+        # name_position << { :name => user.username, :position => position }
+      # }
+      # { :action => action, :users => name_position }.to_json
+    # end
+  # end
   
   class JoinResponseMessage < ResponseMessage
     def self.action; 'join_room'; end
@@ -65,6 +65,14 @@ module Okey
     
     def self.getJSON(user)
       { :action => action, :position => user.position, :username => user.username }.to_json
+    end
+  end
+  
+  class LeaveChannelMessage < ResponseMessage
+    def self.action; 'user_leave'; end
+    
+    def self.getJSON(position, replaced_username)
+      { :action => action, :position => position, :replaced_username => replaced_username }.to_json
     end
   end
   
