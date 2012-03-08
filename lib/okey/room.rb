@@ -62,28 +62,26 @@ module Okey
       
       return RoomMessage.getJSON(:error, nil, "messaging error") if json.nil?
       
-      error = nil
+      error_msg = nil
       case json['action']
       when 'throw_tile'
         tile = TileParser.parse(json['tile'])
-        return RoomMessage.getJSON(:error, nil, 'messaging error') if tile.nil?
-        error = @game.throw_tile(user, tile) # returns logical error if occurs
+        return RoomMessage.getJSON(:error, nil, 'messaging error') if tile.nil? || @game.nil?
+        error_msg = @game.throw_tile(user, tile) # returns logical error if occurs
       when 'draw_tile'
         center = json['center']
-        return RoomMessage.getJSON(:error, nil, 'messaging error') if center.nil?
-        error = @game.draw_tile(user, center)
+        return RoomMessage.getJSON(:error, nil, 'messaging error') if center.nil? || @game.nil?
+        error_msg = @game.draw_tile(user, !!center)
       when 'throw_to_finish'
         tile = TileParser.parse(json['tile'])
-        raw_hand = json['hand']
-        return RoomMessage.getJSON(:error, nil, 'messaging error') if tile.nil?
-        error = @game.throw_to_finish(user, tile)
+        return RoomMessage.getJSON(:error, nil, 'messaging error') if tile.nil? || @game.nil?
+        error_msg = @game.throw_to_finish(user, tile)
       when 'leave_room'
-        # leave_room(user) TODO
-        # @game replace AI
+        leave_room(user)
       else # Send err
-        error = RoomMessage.getJSON(:error, nil, "messaging error")
+        error_msg = RoomMessage.getJSON(:error, nil, "messaging error")
       end
-      error
+      error_msg
     end
 
   end

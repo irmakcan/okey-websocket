@@ -201,6 +201,236 @@ describe Okey::Room do
   
   describe "messaging" do
     
+    before(:each) do
+      em {
+        @room_name = "new room"
+        @user = Okey::User.new(FakeWebSocketClient.new({}))
+        @room = Okey::Room.new(Okey::Lounge.new(Okey::UserController.new), @room_name)
+        @room.join_room(@user)
+        @user.websocket.sent_data = nil
+        done
+      }
+    end
+    
+    describe "leave room" do
+      
+      it "should call leave_room method on leave_room request" do
+        em {
+          leave_req_attr = { :action => :leave_room }
+          @room.should_receive(:leave_room).with(@user)
+          @user.websocket.get_onmessage.call(leave_req_attr.to_json)
+          done
+        }
+      end
+      
+    end
+    
+    describe "throw_tile" do
+      
+      before(:each) do
+        @throw_tile_req_attr = { :action => :throw_tile, :tile => "2:2" }
+      end
+      
+      describe "failure" do
+        
+        it "should send error message if tile cannot been properly parsed" do
+          em {
+            @throw_tile_req_attr.merge!({ :tile => "" })
+            game = Okey::Game.new(@room.instance_variable_get(:@room_channel), @room.instance_variable_get(:@table)) 
+            @room.instance_variable_set(:@game, game)
+            @user.websocket.get_onmessage.call(@throw_tile_req_attr.to_json)
+            json = @user.websocket.sent_data
+            parsed = JSON.parse(json)
+        
+            parsed['status'].should == 'error'
+            parsed['payload']['message'].should == 'messaging error'
+            done
+          }
+        end
+        
+        it "should send error message if game was not initialized" do
+          em {
+            
+            @user.websocket.get_onmessage.call(@throw_tile_req_attr.to_json)
+            json = @user.websocket.sent_data
+            parsed = JSON.parse(json)
+        
+            parsed['status'].should == 'error'
+            parsed['payload']['message'].should == 'messaging error'
+            done
+          }
+        end
+        
+      end
+      
+      describe "success" do
+        
+        it "should call appropriate method of the game" do
+          em {
+            game = Okey::Game.new(@room.instance_variable_get(:@room_channel), @room.instance_variable_get(:@table)) 
+            @room.instance_variable_set(:@game, game)
+            game.should_receive(:throw_tile).with(@user, Okey::TileParser.parse(@throw_tile_req_attr[:tile]))
+            @user.websocket.get_onmessage.call(@throw_tile_req_attr.to_json)
+            done
+          }
+        end
+        
+      end
+      
+    end
+    
+    describe "throw_to_finish" do
+      
+      before(:each) do
+        @throw_finish_req_attr = { :action => :throw_to_finish, :tile => "2:2" }
+      end
+      
+      describe "failure" do
+        
+        it "should send error message if tile cannot been properly parsed" do
+          em {
+            @throw_finish_req_attr.merge!({ :tile => "" })
+            game = Okey::Game.new(@room.instance_variable_get(:@room_channel), @room.instance_variable_get(:@table)) 
+            @room.instance_variable_set(:@game, game)
+            @user.websocket.get_onmessage.call(@throw_finish_req_attr.to_json)
+            json = @user.websocket.sent_data
+            parsed = JSON.parse(json)
+        
+            parsed['status'].should == 'error'
+            parsed['payload']['message'].should == 'messaging error'
+            done
+          }
+        end
+        
+        it "should send error message if game was not initialized" do
+          em {
+            
+            @user.websocket.get_onmessage.call(@throw_finish_req_attr.to_json)
+            json = @user.websocket.sent_data
+            parsed = JSON.parse(json)
+        
+            parsed['status'].should == 'error'
+            parsed['payload']['message'].should == 'messaging error'
+            done
+          }
+        end
+        
+      end
+      
+      describe "success" do
+        
+        it "should call appropriate method of the game" do
+          em {
+            game = Okey::Game.new(@room.instance_variable_get(:@room_channel), @room.instance_variable_get(:@table)) 
+            @room.instance_variable_set(:@game, game)
+            game.should_receive(:throw_to_finish).with(@user, Okey::TileParser.parse(@throw_finish_req_attr[:tile]))
+            @user.websocket.get_onmessage.call(@throw_finish_req_attr.to_json)
+            done
+          }
+        end
+        
+      end
+      
+    end
+    
+    describe "draw_tile" do
+      
+      before(:each) do
+        @draw_tile_req_attr = { :action => :draw_tile, :center => true }
+      end
+      
+      describe "failure" do
+        
+        it "should send error message if center is nil" do
+          em {
+            @draw_tile_req_attr.delete(:center)
+            game = Okey::Game.new(@room.instance_variable_get(:@room_channel), @room.instance_variable_get(:@table)) 
+            @room.instance_variable_set(:@game, game)
+            @user.websocket.get_onmessage.call(@draw_tile_req_attr.to_json)
+            json = @user.websocket.sent_data
+            parsed = JSON.parse(json)
+        
+            parsed['status'].should == 'error'
+            parsed['payload']['message'].should == 'messaging error'
+            done
+          }
+        end
+        
+        it "should send error message if game was not initialized" do
+          em {
+            
+            @user.websocket.get_onmessage.call(@draw_tile_req_attr.to_json)
+            json = @user.websocket.sent_data
+            parsed = JSON.parse(json)
+        
+            parsed['status'].should == 'error'
+            parsed['payload']['message'].should == 'messaging error'
+            done
+          }
+        end
+        
+      end
+      
+      describe "success" do
+        
+        it "should call appropriate method of the game" do
+          em {
+            game = Okey::Game.new(@room.instance_variable_get(:@room_channel), @room.instance_variable_get(:@table)) 
+            @room.instance_variable_set(:@game, game)
+            game.should_receive(:draw_tile).with(@user, @draw_tile_req_attr[:center])
+            @user.websocket.get_onmessage.call(@draw_tile_req_attr.to_json)
+            done
+          }
+        end
+        
+      end
+      
+    end
+    
+    #
+    describe "undefined request" do
+
+      it "should send error json on empty string" do
+        em {
+          @user.websocket.get_onmessage.call("")
+          json = @user.websocket.sent_data
+          parsed = JSON.parse(json)
+
+          parsed["status"].should == "error"
+          parsed["payload"]["message"].should == "messaging error"
+
+          done
+        }
+      end
+
+      it "should send error json on empty json" do
+        em {
+          @user.websocket.get_onmessage.call({}.to_json)
+          json = @user.websocket.sent_data
+          parsed = JSON.parse(json)
+
+          parsed["status"].should == "error"
+          parsed["payload"]["message"].should == "messaging error"
+
+          done
+        }
+      end
+
+      it "should send error json on undefined request" do
+        em {
+          @user.websocket.get_onmessage.call({ :dummy_request => :val }.to_json)
+          json = @user.websocket.sent_data
+          parsed = JSON.parse(json)
+
+          parsed["status"].should == "error"
+          parsed["payload"]["message"].should == "messaging error"
+
+          done
+        }
+      end
+
+    end
+    
   end
   
 end
