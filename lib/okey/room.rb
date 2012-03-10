@@ -74,8 +74,27 @@ module Okey
         error_msg = @game.draw_tile(user, !!center)
       when 'throw_to_finish'
         tile = TileParser.parse(json['tile'])
-        return RoomMessage.getJSON(:error, nil, 'messaging error') if tile.nil? || @game.nil?
-        error_msg = @game.throw_to_finish(user, tile)
+        raw_hand = json['hand']
+        
+        hand = nil
+        if raw_hand.is_a?(Array)
+          hand = []
+          raw_hand.each do |group|
+            if !group.is_a?(Array)
+              hand = nil
+              break
+            end
+            g = TileParser.parse_group(group)
+            if g.nil? 
+              hand = nil
+              break
+            end 
+            hand << g
+          end
+        end
+        
+        return RoomMessage.getJSON(:error, nil, 'messaging error') if tile.nil? || @game.nil? || hand.nil? || hand.empty?
+        error_msg = @game.throw_to_finish(user, hand, tile)
       when 'leave_room'
         leave_room(user)
       else # Send err

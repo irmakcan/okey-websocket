@@ -18,7 +18,8 @@ module Okey
           break
         end
         index += 1
-      end 
+      end
+      user.position = position # TODO find the other
       position        
     end
     

@@ -8,9 +8,9 @@ module Okey
       @tile_bag.distibute_tiles(@table.chairs, @turn)
 
       @table.chairs.each do |position, user|
-        user.websocket.send(GameStartingMessage.getJSON(user.position == @turn,
+        user.websocket.send(GameStartingMessage.getJSON(@turn,
                                                         @tile_bag.center_tile_left,
-                                                        @tile_bag.hands[user.position],
+                                                        @tile_bag.hands[position],
                                                         @tile_bag.indicator))
       end
     end
@@ -32,8 +32,20 @@ module Okey
       nil
     end
 
-    def throw_to_finish(user, tile)
-      # TODO
+    def throw_to_finish(user, hand, tile)
+      return GameMessage.getJSON(:error, nil, 'not your turn') if @turn != user.position
+      
+      success = @tile_bag.throw_tile_center(user.position, hand, tile)
+     
+      if !success
+        return GameMessage.getJSON(:error, nil, 'invalid move')
+      else
+        @channel.push({ :action =>   :user_won,
+                        :turn =>     user.position,
+                        :username => user.username,
+                        :hand =>     hand }.to_json)
+      end 
+     
     end
 
     def draw_tile(user, center)
