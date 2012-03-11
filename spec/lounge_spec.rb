@@ -63,6 +63,27 @@ describe Okey::Lounge do
     end
 
   end
+  
+  # describe "leave lounge" do
+#     
+  # end
+  
+  describe "destroy room" do
+    
+    before(:each) do
+      @user = Okey::User.new(FakeWebSocketClient.new({}))
+    end
+    
+    it "should delete room from one of the hashes" do
+      @lounge = Okey::Lounge.new(Okey::UserController.new)
+      room = Okey::Room.new(@lounge, "room_name")
+      @lounge.instance_variable_set(:@empty_rooms, { room.name => room })
+      er = @lounge.instance_variable_get(:@empty_rooms)
+      @lounge.destroy_room(room)
+      er.should be_empty
+    end
+    
+  end
 
   describe "messaging" do
 

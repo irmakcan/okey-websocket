@@ -29,7 +29,8 @@ module Okey
      
 
     def destroy_room(room)
-      @empty_rooms.delete(room)
+      r = @empty_rooms.delete(room.name)
+      @full_rooms.delete(room.name) if r.nil?
     end
 
     private
@@ -86,7 +87,7 @@ module Okey
 
     def send_room_json(user)
       room_list = []
-      @empty_rooms.each { |room|
+      @empty_rooms.each_value { |room|
         room_list << { :room_name => room.name, :count => room.count }
       }
       json = ({ :status => :lounge_update, :payload => { :player_count => @players.length, :list => room_list }}).to_json
