@@ -158,85 +158,73 @@ describe Okey::Game do
       describe "failure" do
 
         it "should return error message if the turn is not user's turn" do
-          # em {
-            # turn = @game.instance_variable_get(:@turn)
-            # user = nil
-            # @users.each { |usr| user = usr; break if usr.position != turn }
-            # hand = @game.instance_variable_get(:@tile_bag).hands[user.position]
-            # msg = @game.throw_to_finish(user, hand[0])
-            # msg.should_not == nil
-# 
-            # done
-          # }
+          em {
+            turn = @game.instance_variable_get(:@turn)
+            user = nil
+            @users.each { |usr| user = usr; break if usr.position != turn }
+            hand = @game.instance_variable_get(:@tile_bag).hands[user.position]
+            msg = @game.throw_to_finish(user, hand, hand[0])
+            msg.should_not == nil
 
-          # em {
-            # tile_bag = Okey::TileBag.new
-            # tile_bag.distibute_tiles({:south => nil, :east => nil, :west => nil, :north => nil}, :south)
-            # hand = tile_bag.hands[:south]
-            # p hand
-            # hand.sort! { |a,b| 
-              # comp = (a.value <=> b.value)
-              # comp.zero? ? a.color <=> b.color : comp
-            # }
-            # p hand
-            # done
-          # }
+            done
+          }
         end
 
-        # it "should return error message if the user has not possess the tile" do
-          # em {
-            # turn = @game.instance_variable_get(:@turn)
-            # hand = @game.instance_variable_get(:@tile_bag).hands[turn]
-            # tile = nil
-            # tile_factory = Okey::TileFactory.instance
-            # (1..13).each do |i|
-              # tile = tile_factory.get(i, 1)
-              # break unless hand.include?(tile)
-            # end
-            # msg = @game.throw_tile(@table.chairs[turn], tile)
-            # msg.should_not == nil
-# 
-            # done
-          # }
-        # end
-# 
+        it "should return error message if the move is not valid" do
+          em {
+            class FakeBag
+              def throw_tile_center(a, b, c) false end
+            end
+            turn = @game.instance_variable_get(:@turn)
+            hand = @game.instance_variable_get(:@tile_bag).hands[turn]
+            @game.instance_variable_set(:@tile_bag, FakeBag.new)
+            
+            msg = @game.throw_to_finish(@table.chairs[turn], nil, nil) # throw_tile_center will return false
+            msg.should_not == nil
+
+            parsed = JSON.parse(msg)
+            parsed['status'].should == 'error'
+            parsed['payload']['message'] == 'invalid move'
+            done
+          }
+        end
+
       end
-#       
-      # describe "success" do
-# 
-        # it "should return nil" do
-          # em {
-            # turn = @game.instance_variable_get(:@turn)
-            # hand = @game.instance_variable_get(:@tile_bag).hands[turn]
-            # msg = @game.throw_tile(@table.chairs[turn], hand[0])
-            # msg.should == nil
-            # done
-          # }
-        # end
-#         
-        # it "should change the turn to next" do
-          # em {
-            # turn = @game.instance_variable_get(:@turn)
-            # hand = @game.instance_variable_get(:@tile_bag).hands[turn]
-            # @game.throw_tile(@table.chairs[turn], hand[0])
-            # new_turn = @game.instance_variable_get(:@turn)
-            # new_turn.should_not == turn
-            # Okey::Chair::next(turn).should == new_turn
-            # done
-          # }
-        # end
-#         
-        # it "should push a message to the channel" do
-          # em {
-            # @channel.should_receive(:push)
-            # turn = @game.instance_variable_get(:@turn)
-            # hand = @game.instance_variable_get(:@tile_bag).hands[turn]
-            # @game.throw_tile(@table.chairs[turn], hand[0])
-            # done
-          # }
-        # end
-#         
-      # end
+      
+      describe "success" do
+
+        it "should return nil" do
+          em {
+            class FakeBag
+              def throw_tile_center(a, b, c) true end
+            end
+            turn = @game.instance_variable_get(:@turn)
+            hand = @game.instance_variable_get(:@tile_bag).hands[turn]
+            @game.instance_variable_set(:@tile_bag, FakeBag.new)
+            
+            msg = @game.throw_to_finish(@table.chairs[turn], nil, nil) # throw_tile_center will return false
+            msg.should == nil
+            done
+          }
+        end
+        
+        
+        
+        it "should push a message to the channel" do
+          em {
+            class FakeBag
+              def throw_tile_center(a, b, c) true end
+            end
+            turn = @game.instance_variable_get(:@turn)
+            hand = @game.instance_variable_get(:@tile_bag).hands[turn]
+            @game.instance_variable_set(:@tile_bag, FakeBag.new)
+            @channel.should_receive(:push)
+            @game.throw_to_finish(@table.chairs[turn], nil, nil) # throw_tile_center will return false
+            done
+          }
+        end
+        
+      end
       
     end
     

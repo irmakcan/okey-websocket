@@ -152,7 +152,6 @@ describe Okey::Room do
         
         parsed['action'].should == 'user_leave'
         parsed['position'].to_sym.should == user1.position
-        parsed['replaced_username'].should == "AI" # TODO
         done
       }
     end
@@ -344,6 +343,22 @@ describe Okey::Room do
             @room.instance_variable_set(:@game, game)
             game.should_receive(:throw_to_finish)
             @user.websocket.get_onmessage.call(@throw_finish_req_attr.to_json)
+            done
+          }
+        end
+        
+        it "should subscribe users to the lounge if @game.throw_to_finish returns nil" do
+          em {
+            class FakeGame
+              def throw_to_finish(a, b, c) nil end
+            end
+            
+            game = FakeGame.new 
+            @room.instance_variable_set(:@game, game)
+            @user.websocket.get_onmessage.call(@throw_finish_req_attr.to_json)
+            msg = @user.websocket.sent_data
+            msg.should_not == nil
+            
             done
           }
         end

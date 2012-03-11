@@ -45,7 +45,7 @@ module Okey
                         :username => user.username,
                         :hand =>     hand }.to_json)
       end 
-     
+      nil
     end
 
     def draw_tile(user, center)

@@ -71,6 +71,14 @@ module Okey
   class LeaveChannelMessage < ResponseMessage
     def self.action; 'user_leave'; end
     
+    def self.getJSON(position)
+      { :action => action, :position => position }.to_json
+    end
+  end
+  
+  class LeaveReplacedChannelMessage < ResponseMessage
+    def self.action; 'user_replace'; end
+    
     def self.getJSON(position, replaced_username)
       { :action => action, :position => position, :replaced_username => replaced_username }.to_json
     end

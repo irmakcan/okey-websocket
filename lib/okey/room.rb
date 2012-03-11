@@ -38,7 +38,12 @@ module Okey
       @lounge.destroy_room(self) if @table.empty?
       @room_channel.unsubscribe(user.sid)
       # publish leaved
-      @room_channel.push(LeaveChannelMessage.getJSON(user.position, "AI")) # Will be real AI TODO
+      if @game.nil?
+        @room_channel.push(LeaveChannelMessage.getJSON(user.position))
+      else # add AI TODO
+        @room_channel.push(LeaveReplacedChannelMessage.getJSON(user.position, "AI")) # Will be real AI TODO
+      end
+      
       @lounge.join_lounge(user)
     end
 
@@ -95,6 +100,13 @@ module Okey
         
         return RoomMessage.getJSON(:error, nil, 'messaging error') if tile.nil? || @game.nil? || hand.nil? || hand.empty?
         error_msg = @game.throw_to_finish(user, hand, tile)
+        if error_msg.nil? # Game ends
+          @table.chairs.each_value do |user|
+            @game = nil
+            leave_room(user)
+          end
+        end
+        
       when 'leave_room'
         leave_room(user)
       else # Send err
