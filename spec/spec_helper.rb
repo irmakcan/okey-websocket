@@ -56,7 +56,7 @@ class FakeSocketClient < EventMachine::Connection
 end
 class FakeWebSocketClient < EM::Connection
   attr_accessor :sent_data
-  attr_reader :handshake_response, :packets
+  attr_reader :handshake_response, :packets, :state
   
   def onopen(&blk);     @onopen = blk;    end
   def onclose(&blk);    @onclose = blk;   end

@@ -46,7 +46,7 @@ describe Okey::Room do
       em {
         @room.join_room(@user)
         @user.websocket.get_onmessage.should_not == nil
-        #@user.websocket.get_onclose.should_not == nil TODO
+        @user.websocket.get_onclose.should_not == nil
         done
       }
     end
@@ -193,6 +193,17 @@ describe Okey::Room do
         @room.join_room(@user)
         lounge = @room.instance_variable_get(:@lounge)
         lounge.should_receive(:destroy_room).with(@room)
+        @room.leave_room(@user)
+        done
+      }
+    end
+    
+    it "should not join the user to lounge if websocket state is 'closed'" do
+      em {
+        @room.join_room(@user)
+        @user.websocket.instance_variable_set(:@state, :closed)
+        lounge = @room.instance_variable_get(:@lounge)
+        lounge.should_not_receive(:join_lounge).with(@user)
         @room.leave_room(@user)
         done
       }

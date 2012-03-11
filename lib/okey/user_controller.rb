@@ -15,6 +15,9 @@ module Okey
           @lounge.join_lounge(user)
         end
       }
+      user.websocket.onclose {
+        user = nil # not truly necessary
+      }
     end
 
     private

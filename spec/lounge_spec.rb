@@ -51,11 +51,11 @@ describe Okey::Lounge do
       em {
         @lounge = Okey::Lounge.new(Okey::UserController.new)
         onmessage = @user.websocket.get_onmessage
-        # onclose = @user.websocket.get_onclose
+        onclose = @user.websocket.get_onclose
         # onerror = @user.websocket.get_onerror
         @lounge.join_lounge(@user)
         @user.websocket.get_onmessage.should_not == onmessage
-        # @user.websocket.get_onclose.should_not == onclose TODO
+        @user.websocket.get_onclose.should_not == onclose
         # @user.websocket.get_onerror.should_not == onerror TODO
 
         done

@@ -18,7 +18,9 @@ module Okey
           user.websocket.send error
         end
       }
-      #user.websocket.onclose {}
+      user.websocket.onclose {
+        leave_room(user)
+      }
       user.position = @table.add_user(user)
       # Send his location and table infos
       user.websocket.send(JoinResponseMessage.getJSON(user, @table.chairs))
@@ -44,7 +46,7 @@ module Okey
         @room_channel.push(LeaveReplacedChannelMessage.getJSON(user.position, "AI")) # Will be real AI TODO
       end
       
-      @lounge.join_lounge(user)
+      @lounge.join_lounge(user) if user.websocket.state != :closed
     end
 
     def count

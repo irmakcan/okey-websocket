@@ -16,7 +16,9 @@ module Okey
           user.websocket.send error
         end
       }
-      # user.websocket.onclose {}
+      user.websocket.onclose {
+        @players.delete(user)
+      }
       # subscribe
       user.websocket.send({ :status => :success, :payload => { :message => "authentication success" }}.to_json)
       @players << user

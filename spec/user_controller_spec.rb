@@ -10,6 +10,22 @@ describe Okey::UserController do
   # end
   # end
 
+  it "should change websocket procs" do
+    em {
+      @user = Okey::User.new(FakeWebSocketClient.new({}))
+      @user.websocket.get_onmessage.should == nil
+      @user.websocket.get_onclose.should == nil
+      
+      controller = Okey::UserController.new
+      controller.subscribe(@user)
+      
+      @user.websocket.get_onmessage.should_not == nil
+      @user.websocket.get_onclose.should_not == nil
+
+      done
+    }
+  end
+
   describe "authentication" do
     before(:each) do
       @user = Okey::User.new(FakeWebSocketClient.new({}))
@@ -105,18 +121,18 @@ describe Okey::UserController do
     end
 
     describe "success" do
-      #it "should authenticate on matching username salt pair"
+    #it "should authenticate on matching username salt pair"
 
       it "should assign user's username" do
         em {
           old_block = @user.websocket.get_onmessage
           @user.websocket.get_onmessage.call(@json_attr.to_json)
           @user.username.should == @json_attr[:payload][:username]
-          
+
           done
         }
       end
-      
+
       it "should change the onmessage Proc" do
         em {
           old_block = @user.websocket.get_onmessage
