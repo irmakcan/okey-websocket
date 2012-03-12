@@ -285,23 +285,31 @@ describe Okey::Game do
             @game.throw_tile(@table.chairs[turn], hand[0]) # tile thrown 
             
             turn = @game.instance_variable_get(:@turn)
-            msg = @game.draw_tile(@table.chairs[turn], false) # draw center tile
+            msg = @game.draw_tile(@table.chairs[turn], false) # draw center tile  ## TODO
             msg.should == nil
             done
           }
         end
         
-        it "should push a message to the channel" do
+        it "should send a message to the channel individually" do
           em {
-            
             turn = @game.instance_variable_get(:@turn)
             hand = @game.instance_variable_get(:@tile_bag).hands[turn]
-            @game.throw_tile(@table.chairs[turn], hand[0]) # tile thrown 
+            @game.throw_tile(@table.chairs[turn], hand[0]) # tile thrown  
             
-            @channel.should_receive(:push)
             turn = @game.instance_variable_get(:@turn)
-            msg = @game.draw_tile(@table.chairs[turn], false) # draw center tile
+            user = @table.chairs[turn]
+            user.websocket.sent_data = nil
+            msg = @game.draw_tile(user, false) # draw center tile ## TODO## TODO
             msg.should == nil
+            
+            json = user.websocket.sent_data
+            parsed = JSON.parse(json)
+            parsed['action'].should == 'draw_tile'
+            parsed['tile'].should_not == nil
+            parsed['turn'].should == turn.to_s
+            parsed['center_count'].should be_a_kind_of(Fixnum)
+            
             done
           }
         end

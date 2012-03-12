@@ -1,6 +1,35 @@
 module Okey
-  class User
-    attr_accessor :username, :sid, :position
+  class Player
+    attr_accessor :username, :position
+  end
+  
+  class OkeyBot < Player
+    include EM::Deferrable
+    
+    def initialize(hand)
+      @hand = hand
+    end
+    
+    # def self.play_draw(left_tile, hand)
+      # self.succeed(:center) # draw center tile
+    # end
+#     
+    # def play_draw(left_tile)
+      # OkeyBot.play_draw(left_tile, @hand)
+    # end
+#     
+    # def self.play_throw(retreived_tile, hand)
+      # self.succeed(retreived_tile) # throw retreived tile
+    # end
+#     
+    # def play_throw(retreived_tile)
+      # OkeyBot.play_throw(retreived_tile, @hand)
+    # end
+    
+  end
+  
+  class User < Player
+    attr_accessor :sid
     attr_reader :websocket
     
     def initialize(websocket)

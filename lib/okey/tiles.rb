@@ -39,17 +39,17 @@ module Okey
     end
     
     def draw_middle_tile(position)
-      return false if @hands[position].length != 14 || @bag.empty?
+      return nil if @hands[position].length != 14 || @bag.empty?
       tile = @bag.shift
       @hands[position] << tile
-      true
+      tile
     end
     
     def draw_left_tile(position)
-      return false if @hands[position].length != 14 || @corner_tiles[LEFT_CORNER[position]].empty?
+      return nil if @hands[position].length != 14 || @corner_tiles[LEFT_CORNER[position]].empty?
       t = @corner_tiles[LEFT_CORNER[position]].pop
       @hands[position] << t
-      true
+      t
     end
     
     def throw_tile(position, tile)
