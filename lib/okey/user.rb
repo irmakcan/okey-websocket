@@ -18,6 +18,7 @@ module Okey
   # end
   
   class OkeyBot < Player
+    attr_accessor :sid
     
     def initialize(hand)
       @hand = hand
@@ -27,14 +28,26 @@ module Okey
       true
     end
     
-    def play_draw(left_tile, &block)
-      @draw_callback = block
-      OkeyBot.play_draw(left_tile, @hand)
+    def send(hash)
+      @websocket.send(hash.to_json)
     end
     
-    def play_throw(retreived_tile, &block)
-      OkeyBot.play_throw(retreived_tile, @hand)
+    def onmessage(&blk)
+
     end
+    
+    def onclose(&blk)
+  
+    end
+    
+    # def play_draw(left_tile, &block)
+      # @draw_callback = block
+      # OkeyBot.play_draw(left_tile, @hand)
+    # end
+#     
+    # def play_throw(retreived_tile, &block)
+      # OkeyBot.play_throw(retreived_tile, @hand)
+    # end
     
   end
   

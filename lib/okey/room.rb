@@ -31,9 +31,7 @@ module Okey
         usr.send(channel_msg) if user.position != position
       end
       # start game
-      if @table.full? && @game.nil?
-        @game = Game.new(@room_channel, @table)
-      end
+      @table.initialize_game if @table.full?
     end
 
     def leave_room(user)
@@ -41,11 +39,16 @@ module Okey
       @lounge.destroy_room(self) if @table.empty?
       @room_channel.unsubscribe(user.sid)
       # publish leaved
-      if @game.nil?
-        @room_channel.push(LeaveChannelMessage.getJSON(user.position))
-      else # add AI TODO
-        @room_channel.push(LeaveReplacedChannelMessage.getJSON(user.position, "AI")) # Will be real AI TODO
-      end
+      @room_channel.push(LeaveChannelMessage.getJSON(user.position))
+      # unless @game.nil?
+        # bot = @game.create_bot(user.position)
+        # join_room(bot)
+#         
+        # if @game.turn == bot.position
+          # # TODO
+        # end
+#         
+      # end
     end
 
     def count
@@ -72,14 +75,14 @@ module Okey
       case json['action']
       when 'throw_tile'
         tile = TileParser.parse(json['tile'])
-        return RoomMessage.getJSON(:error, nil, 'messaging error') if tile.nil? || @game.nil?
-        success = @game.throw_tile(user, tile) # returns logical error if occurs
+        return RoomMessage.getJSON(:error, nil, 'messaging error') if tile.nil? || !@table.game_started?
+        success = @table.throw_tile(user, tile) # returns logical error if occurs
         if success
           @room_channel.push({ :action => :throw_tile,
-                               :turn => @game.turn,
+                               :turn => @table.turn,
                                :tile => tile.to_s })
         else
-          if user.position != @game.turn
+          if user.position != @table.turn
             error_msg = GameMessage.getJSON(:error, nil, 'not your turn')
           else
             error_msg = GameMessage.getJSON(:error, nil, 'invalid move')
@@ -88,22 +91,23 @@ module Okey
         
       when 'draw_tile'
         center = json['center']
-        return RoomMessage.getJSON(:error, nil, 'messaging error') if center.nil? || @game.nil?
-        tile = @game.draw_tile(user, !!center)
+        return RoomMessage.getJSON(:error, nil, 'messaging error') if center.nil? || !@table.game_started?
+        tile = @table.draw_tile(user, !!center)
         if tile
           @table.chairs.each do |position, usr|
           usr.send({ :action =>       :draw_tile,
                      :tile =>         (position == user.position ? tile.to_s : nil),
-                     :turn =>         @game.turn,
-                     :center_count => @game.middle_tile_count })
+                     :turn =>         @table.turn,
+                     :center_count => @table.middle_tile_count })
           end
         else
-          if user.position != @game.turn
+          if user.position != @table.turn
             error_msg = GameMessage.getJSON(:error, nil, 'not your turn')
           else
             error_msg = GameMessage.getJSON(:error, nil, 'invalid move')
           end
         end
+        
       when 'throw_to_finish'
         tile = TileParser.parse(json['tile'])
         raw_hand = json['hand']
@@ -125,24 +129,23 @@ module Okey
           end
         end
         
-        return RoomMessage.getJSON(:error, nil, 'messaging error') if tile.nil? || @game.nil? || hand.nil? || hand.empty?
-        success = @game.throw_to_finish(user, hand, tile)
+        return RoomMessage.getJSON(:error, nil, 'messaging error') if tile.nil? || !@table.game_started? || hand.nil? || hand.empty?
+        success = @table.throw_to_finish(user, hand, tile)
         
         
         
         if success # Game ends
           @room_channel.push({ :action =>   :user_won,
-                          :turn =>     user.position,
-                          :username => user.username,
-                          :hand =>     hand })
+                              :turn =>     user.position,
+                              :username => user.username,
+                              :hand =>     hand })
                           
           @table.chairs.each_value do |user|
-            @game = nil
             leave_room(user)
             @lounge.join_lounge(user)
           end
         else
-          if user.position != @game.turn
+          if user.position != @table.turn
             error_msg = GameMessage.getJSON(:error, nil, 'not your turn')
           else
             error_msg = GameMessage.getJSON(:error, nil, 'invalid move')

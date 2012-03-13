@@ -1,10 +1,8 @@
 module Okey
   class Game
-    attr_reader :turn
-    def initialize(channel, table)
-      @channel = channel
+    attr_reader :turn, :tile_bag
+    def initialize(table)
       @table = table
-      @bots = {}
       @turn = :south
       @tile_bag = TileBag.new
       @tile_bag.distibute_tiles(@table.chairs, @turn)
@@ -76,6 +74,9 @@ module Okey
     # def add_bot(okey_bot)
       # @bots.merge!({ okey_bot.position => okey_bot })
     # end
+    def create_bot(position)
+      OkeyBot.new(@tile_bag.hands[position])
+    end
 
   end
 end

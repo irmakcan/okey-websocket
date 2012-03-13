@@ -86,7 +86,7 @@ describe Okey::Room do
 
         @room.join_room(user1)
         @room.join_room(user2)
-        Okey::Game.should_receive(:new).with(@room.instance_variable_get(:@room_channel), @room.instance_variable_get(:@table))
+        Okey::Game.should_receive(:new).with(@room.instance_variable_get(:@table))
         @room.join_room(user3)
         
         done
@@ -249,8 +249,8 @@ describe Okey::Room do
         it "should send error message if tile cannot been properly parsed" do
           em {
             @throw_tile_req_attr.merge!({ :tile => "" })
-            game = Okey::Game.new(@room.instance_variable_get(:@room_channel), @room.instance_variable_get(:@table)) 
-            @room.instance_variable_set(:@game, game)
+            table = @room.instance_variable_get(:@table)
+            table.initialize_game 
             @user.websocket.get_onmessage.call(@throw_tile_req_attr.to_json)
             json = @user.websocket.sent_data
             parsed = JSON.parse(json)
@@ -278,11 +278,11 @@ describe Okey::Room do
       
       describe "success" do
         
-        it "should call appropriate method of the game" do
+        it "should call appropriate method of the table" do
           em {
-            game = Okey::Game.new(@room.instance_variable_get(:@room_channel), @room.instance_variable_get(:@table)) 
-            @room.instance_variable_set(:@game, game)
-            game.should_receive(:throw_tile).with(@user, Okey::TileParser.parse(@throw_tile_req_attr[:tile]))
+            table = @room.instance_variable_get(:@table)
+            table.initialize_game
+            table.should_receive(:throw_tile).with(@user, Okey::TileParser.parse(@throw_tile_req_attr[:tile]))
             @user.websocket.get_onmessage.call(@throw_tile_req_attr.to_json)
             done
           }
@@ -305,8 +305,8 @@ describe Okey::Room do
         it "should send error message if tile cannot been properly parsed" do
           em {
             @throw_finish_req_attr.merge!({ :tile => "" })
-            game = Okey::Game.new(@room.instance_variable_get(:@room_channel), @room.instance_variable_get(:@table)) 
-            @room.instance_variable_set(:@game, game)
+            table = @room.instance_variable_get(:@table)
+            table.initialize_game 
             @user.websocket.get_onmessage.call(@throw_finish_req_attr.to_json)
             json = @user.websocket.sent_data
             parsed = JSON.parse(json)
@@ -320,8 +320,8 @@ describe Okey::Room do
         it "should send error message if hand cannot been properly parsed" do
           em {
             @throw_finish_req_attr.merge!({ :hand => [""] })
-            game = Okey::Game.new(@room.instance_variable_get(:@room_channel), @room.instance_variable_get(:@table)) 
-            @room.instance_variable_set(:@game, game)
+            table = @room.instance_variable_get(:@table)
+            table.initialize_game 
             @user.websocket.get_onmessage.call(@throw_finish_req_attr.to_json)
             json = @user.websocket.sent_data
             parsed = JSON.parse(json)
@@ -334,7 +334,6 @@ describe Okey::Room do
         
         it "should send error message if game was not initialized" do
           em {
-            
             @user.websocket.get_onmessage.call(@throw_finish_req_attr.to_json)
             json = @user.websocket.sent_data
             parsed = JSON.parse(json)
@@ -351,9 +350,9 @@ describe Okey::Room do
         
         it "should call appropriate method of the game" do
           em {
-            game = Okey::Game.new(@room.instance_variable_get(:@room_channel), @room.instance_variable_get(:@table)) 
-            @room.instance_variable_set(:@game, game)
-            game.should_receive(:throw_to_finish)
+            table = @room.instance_variable_get(:@table)
+            table.initialize_game 
+            table.should_receive(:throw_to_finish)
             @user.websocket.get_onmessage.call(@throw_finish_req_attr.to_json)
             done
           }
@@ -364,9 +363,10 @@ describe Okey::Room do
             class FakeGame
               def throw_to_finish(a, b, c) true end
             end
-            
-            game = FakeGame.new 
-            @room.instance_variable_set(:@game, game)
+
+            table = @room.instance_variable_get(:@table)
+            table.initialize_game
+            table.instance_variable_set(:@game, FakeGame.new)
             @user.websocket.get_onmessage.call(@throw_finish_req_attr.to_json)
             msg = @user.websocket.sent_data
             msg.should_not == nil
@@ -390,8 +390,8 @@ describe Okey::Room do
         it "should send error message if center is nil" do
           em {
             @draw_tile_req_attr.delete(:center)
-            game = Okey::Game.new(@room.instance_variable_get(:@room_channel), @room.instance_variable_get(:@table)) 
-            @room.instance_variable_set(:@game, game)
+            table = @room.instance_variable_get(:@table)
+            table.initialize_game
             @user.websocket.get_onmessage.call(@draw_tile_req_attr.to_json)
             json = @user.websocket.sent_data
             parsed = JSON.parse(json)
@@ -404,7 +404,6 @@ describe Okey::Room do
         
         it "should send error message if game was not initialized" do
           em {
-            
             @user.websocket.get_onmessage.call(@draw_tile_req_attr.to_json)
             json = @user.websocket.sent_data
             parsed = JSON.parse(json)
@@ -421,9 +420,9 @@ describe Okey::Room do
         
         it "should call appropriate method of the game" do
           em {
-            game = Okey::Game.new(@room.instance_variable_get(:@room_channel), @room.instance_variable_get(:@table)) 
-            @room.instance_variable_set(:@game, game)
-            game.should_receive(:draw_tile).with(@user, @draw_tile_req_attr[:center])
+            table = @room.instance_variable_get(:@table)
+            table.initialize_game
+            table.should_receive(:draw_tile).with(@user, @draw_tile_req_attr[:center])
             @user.websocket.get_onmessage.call(@draw_tile_req_attr.to_json)
             done
           }

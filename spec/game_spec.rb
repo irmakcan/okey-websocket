@@ -7,7 +7,6 @@ describe Okey::Game do
 
     before(:each) do
       em {
-        @channel = EventMachine::Channel.new
         @user = Okey::User.new(FakeWebSocketClient.new({}))
         @table = Okey::Table.new
         @table.add_user(@user)
@@ -17,8 +16,7 @@ describe Okey::Game do
 
     it "should set default values" do
       em{
-        game = Okey::Game.new(@channel, @table)
-        game.instance_variable_get(:@channel).should == @channel
+        game = Okey::Game.new(@table)
         game.instance_variable_get(:@table).should == @table
         Okey::Chair::POSITIONS.should include(game.instance_variable_get(:@turn))
         game.instance_variable_get(:@tile_bag).should be_instance_of(Okey::TileBag)
@@ -28,7 +26,7 @@ describe Okey::Game do
 
     it "should send game starting message with game information" do
       em {
-        game = Okey::Game.new(@channel, @table)
+        game = Okey::Game.new(@table)
         json = @user.websocket.sent_data
         json.should_not be_nil
         parsed = JSON.parse(json)
@@ -51,7 +49,6 @@ describe Okey::Game do
 
     before(:each) do
       em {
-        @channel = EventMachine::Channel.new
         @users = []
 
         user = Okey::User.new(FakeWebSocketClient.new({}))
@@ -70,10 +67,10 @@ describe Okey::Game do
         @table = Okey::Table.new
         @users.each do |usr| 
           @table.add_user(usr) 
-          user.sid = @channel.subscribe { |msg| user.websocket.send msg }
+          #user.sid = @channel.subscribe { |msg| user.websocket.send msg }
         end
 
-        @game = Okey::Game.new(@channel, @table)
+        @game = Okey::Game.new(@table)
         done
       }
     end
