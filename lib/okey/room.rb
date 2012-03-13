@@ -20,6 +20,7 @@ module Okey
       }
       user.onclose {
         leave_room(user)
+        @lounge.leave_lounge(user)
       }
       @table.add_user(user)
       # Send his location and table infos

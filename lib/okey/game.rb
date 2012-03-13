@@ -65,7 +65,6 @@ module Okey
       else
         tile = @tile_bag.draw_left_tile(user.position)
       end
-
       tile
     end
     

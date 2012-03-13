@@ -46,6 +46,17 @@ describe Okey::Lounge do
         done
       }
     end
+    
+    it "should not increase the number of users on double join" do
+      em {
+        @lounge = Okey::Lounge.new(Okey::UserController.new)
+        count = @lounge.instance_variable_get(:@players).length
+        @lounge.join_lounge(@user)
+        @lounge.join_lounge(@user)
+        @lounge.instance_variable_get(:@players).length.should == count + 1
+        done
+      }
+    end
 
     it "should change websocket procs" do
       em {
@@ -64,9 +75,21 @@ describe Okey::Lounge do
 
   end
   
-  # describe "leave lounge" do
-#     
-  # end
+  describe "leave lounge" do
+    
+    it "should remove the user from the users set" do
+      em {
+        user = Okey::User.new(FakeWebSocketClient.new({}))
+        lounge = Okey::Lounge.new(Okey::UserController.new)
+        lounge.join_lounge(user)
+        user_count = lounge.instance_variable_get(:@players).length
+        lounge.leave_lounge(user)
+        lounge.instance_variable_get(:@players).length.should == user_count - 1
+        done
+      }
+    end
+    
+  end
   
   describe "destroy room" do
     

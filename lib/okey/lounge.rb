@@ -26,7 +26,6 @@ module Okey
 
     def leave_lounge(user)
       @players.delete(user)
-      @user_controller.subscribe(user)
     end
      
 
@@ -60,6 +59,7 @@ module Okey
         error = create_and_join_room(room_name, user)
       when 'leave_lounge'
         leave_lounge(user)
+        @user_controller.subscribe(user)
       else # Send err
         return LoungeMessage.getJSON(:error, nil, 'messaging error')
       end
