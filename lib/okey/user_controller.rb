@@ -3,19 +3,19 @@ module Okey
 
     def subscribe(user)
       # May publish connection established
-      # user.websocket.send json(connection established)
-      user.websocket.onmessage { |msg|
+      # user.send json(connection established) TODO
+      user.onmessage { |msg|
 
         error = handle_request(user, msg)
         if error
-          user.websocket.send error
+          user.send error
         else
         # Everything went well (authenticated)
           @lounge = Lounge.new(self) unless @lounge
           @lounge.join_lounge(user)
         end
       }
-      user.websocket.onclose {
+      user.onclose {
         user = nil # not truly necessary
       }
     end

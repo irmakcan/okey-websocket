@@ -7,25 +7,25 @@ module Okey
   
   class AuthenticationMessage
     def self.getJSON(status, state_def, message)
-      { :status => status, :payload => { :message => message }}.to_json
+      { :status => status, :payload => { :message => message }}
     end
   end
   
   class LoungeMessage
     def self.getJSON(status, state_def, message)
-      { :status => status, :payload => { :message => message }}.to_json
+      { :status => status, :payload => { :message => message }}
     end
   end
   
   class RoomMessage
     def self.getJSON(status, state_def, message)
-      { :status => status, :payload => { :message => message }}.to_json
+      { :status => status, :payload => { :message => message }}
     end
   end
   
   class GameMessage
     def self.getJSON(status, state_def, message)
-      { :status => status, :payload => { :message => message }}.to_json
+      { :status => status, :payload => { :message => message }}
     end
   end
 
@@ -56,7 +56,7 @@ module Okey
       chairs.each { |pos, usr|
         name_position << { :name => usr.username, :position => pos } if user.position != pos
       }
-      { :action => action, :position => user.position, :users => name_position }.to_json
+      { :action => action, :position => user.position, :users => name_position }
     end
   end
   
@@ -64,7 +64,7 @@ module Okey
     def self.action; 'new_user'; end
     
     def self.getJSON(user)
-      { :action => action, :position => user.position, :username => user.username }.to_json
+      { :action => action, :position => user.position, :username => user.username }
     end
   end
   
@@ -72,7 +72,7 @@ module Okey
     def self.action; 'user_leave'; end
     
     def self.getJSON(position)
-      { :action => action, :position => position }.to_json
+      { :action => action, :position => position }
     end
   end
   
@@ -80,7 +80,7 @@ module Okey
     def self.action; 'user_replace'; end
     
     def self.getJSON(position, replaced_username)
-      { :action => action, :position => position, :replaced_username => replaced_username }.to_json
+      { :action => action, :position => position, :replaced_username => replaced_username }
     end
   end
   
@@ -94,7 +94,7 @@ module Okey
         :center_count => center_tile_count, 
         :hand => user_hand, 
         :indicator => indicator_tile.to_s 
-      }.to_json
+      }
     end
   end
   
@@ -103,7 +103,7 @@ module Okey
     
     # turn => true | false
     def self.getJSON(turn, center_tile_count, changed_corner)
-      { :action => action, :turn => turn, :center_count => center_tile_count, :changed_corner => changed_corner }.to_json
+      { :action => action, :turn => turn, :center_count => center_tile_count, :changed_corner => changed_corner }
     end
   end
   

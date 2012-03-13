@@ -158,15 +158,7 @@ describe Okey::Room do
     
     it "should add AI if the game is already started"
     
-    it "should add user to lounge" do
-      em {
-        @room.join_room(@user)
-        @room.instance_variable_get(:@lounge).should_receive(:join_lounge).with(@user)
-        @room.leave_room(@user)
-        
-        done
-      }
-    end
+    
     
     it "should unsubscribe user's sid from channel" do
       em {
@@ -234,6 +226,15 @@ describe Okey::Room do
           done
         }
       end
+      
+      it "should add user to lounge" do
+      em {
+        leave_req_attr = { :action => :leave_room }
+        @room.instance_variable_get(:@lounge).should_receive(:join_lounge).with(@user)
+        @user.websocket.get_onmessage.call(leave_req_attr.to_json)
+        done
+      }
+    end
       
     end
     
@@ -361,7 +362,7 @@ describe Okey::Room do
         it "should subscribe users to the lounge if @game.throw_to_finish returns nil" do
           em {
             class FakeGame
-              def throw_to_finish(a, b, c) nil end
+              def throw_to_finish(a, b, c) true end
             end
             
             game = FakeGame.new 

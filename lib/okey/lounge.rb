@@ -10,17 +10,17 @@ module Okey
     end
 
     def join_lounge(user)
-      user.websocket.onmessage{ |msg|
+      user.onmessage{ |msg|
         error = handle_request(user, msg)
         if error
-          user.websocket.send error
+          user.send error
         end
       }
-      user.websocket.onclose {
+      user.onclose {
         @players.delete(user)
       }
       # subscribe
-      user.websocket.send({ :status => :success, :payload => { :message => "authentication success" }}.to_json)
+      user.send({ :status => :success, :payload => { :message => "authentication success" }})
       @players << user
     end
 
@@ -92,8 +92,8 @@ module Okey
       @empty_rooms.each_value { |room|
         room_list << { :room_name => room.name, :count => room.count }
       }
-      json = ({ :status => :lounge_update, :payload => { :player_count => @players.length, :list => room_list }}).to_json
-      user.websocket.send(json)
+      json = { :status => :lounge_update, :payload => { :player_count => @players.length, :list => room_list }}
+      user.send(json)
     end
 
   end

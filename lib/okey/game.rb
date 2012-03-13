@@ -1,5 +1,6 @@
 module Okey
   class Game
+    attr_reader :turn
     def initialize(channel, table)
       @channel = channel
       @table = table
@@ -9,85 +10,67 @@ module Okey
       @tile_bag.distibute_tiles(@table.chairs, @turn)
 
       @table.chairs.each do |position, user|
-        user.websocket.send(GameStartingMessage.getJSON(@turn,
-                                                        @tile_bag.center_tile_left,
-                                                        @tile_bag.hands[position],
-                                                        @tile_bag.indicator))
+        user.send(GameStartingMessage.getJSON(@turn,
+                                              @tile_bag.center_tile_left,
+                                              @tile_bag.hands[position],
+                                              @tile_bag.indicator))
       end
     end
 
+    # True | False
     def throw_tile(user, tile)
-      return GameMessage.getJSON(:error, nil, 'not your turn') if @turn != user.position
+      return false if @turn != user.position
 
       success = @tile_bag.throw_tile(user.position, tile)
 
-      if !success
-        return GameMessage.getJSON(:error, nil, 'invalid move')
-      else
+      if success
         @turn = Chair.next(user.position)
-        @channel.push({ :action => :throw_tile,
-                        :turn => @turn,
-                        :tile => tile.to_s,
-                        :corner => TileBag::RIGHT_CORNER[user.position] }.to_json)
-                        
+      end
+          
+        ########
         # AI TODO
         # unless @bots[@turn].nil?
           # bot = @bots[@turn]
           # bot.play_draw(tile) do |center|
             # if center == :center
-              # draw_tile(bot, true)
+              # t = draw_tile(bot, true)
             # else
-              # draw_tile(bot, false)
+              # t = draw_tile(bot, false)
             # end
-            # bot.play_throw()#########
+            # bot.play_throw(t) do |t,c|
+              # if c == :center
+                # throw_to_finish(bot, @tile_bag.hands[@turn], t)
+              # else
+                # throw_tile(bot, t)
+              # end
+            # end
           # end
         # end
-      end
-      nil
+        ########
+      success
     end
 
+    # True | False
     def throw_to_finish(user, hand, tile)
-      return GameMessage.getJSON(:error, nil, 'not your turn') if @turn != user.position
-      
-      success = @tile_bag.throw_tile_center(user.position, hand, tile)
-     
-      if !success
-        return GameMessage.getJSON(:error, nil, 'invalid move')
-      else
-        @channel.push({ :action =>   :user_won,
-                        :turn =>     user.position,
-                        :username => user.username,
-                        :hand =>     hand }.to_json)
-      end
-      nil
+      return false if @turn != user.position
+      @tile_bag.throw_tile_center(user.position, hand, tile)
     end
 
+    # Tile | Nil
     def draw_tile(user, center)
-      return GameMessage.getJSON(:error, nil, 'not your turn') if @turn != user.position
+      return nil if @turn != user.position
+      tile = nil
       if center
         tile = @tile_bag.draw_middle_tile(user.position)
       else
         tile = @tile_bag.draw_left_tile(user.position)
       end
 
-      if !tile
-        return GameMessage.getJSON(:error, nil, 'invalid move')
-      else
-        
-        @table.chairs.each do |position, usr|
-          usr.websocket.send({ :action =>       :draw_tile,
-                               :tile =>         (position == user.position ? tile.to_s : nil),
-                               :turn =>         user.position,
-                               :center_count => @tile_bag.center_tile_left }.to_json)
-        end
-        # user.websocket.send({ :action => :draw_tile, })
-        # @channel.push({ :action =>       :draw_tile,
-                        # :turn =>         user.position,
-                        # :center =>       center,
-                        # :center_count => @tile_bag.center_tile_left,
-                        # :corner =>       TileBag::LEFT_CORNER[user.position] }.to_json)
-      end
-      nil
+      tile
+    end
+    
+    def middle_tile_count
+      @tile_bag.center_tile_left
     end
     
     # TODO test
