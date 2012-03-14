@@ -9,8 +9,10 @@ module Okey
     end
     
     def initialize_game
-      @game = Game.new(self)
-      @state = :started
+      if @game.nil?
+        @game = Game.new(self)
+        @state = :started
+      end
     end
     
     # returns the added position or nil
@@ -30,6 +32,10 @@ module Okey
       position        
     end
     
+    def create_bot(position)
+      @game.create_bot(position)
+    end
+    
     def get_user(position)
       @chairs[position]
     end
@@ -38,16 +44,20 @@ module Okey
       @chairs.delete(position)
     end
     
-    def count
-      @chairs.length
+    def user_count
+      user_count = 0
+      @chairs.each_value do |player|
+        user_count += 1 unless player.bot?
+      end
+      user_count
     end
     
     def full?
-      @chairs.length >= 4
+      user_count >= 4
     end
     
     def empty?
-      @chairs.length <= 0
+      user_count <= 0
     end
     
     def game_started?

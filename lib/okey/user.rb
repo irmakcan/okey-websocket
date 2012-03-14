@@ -29,7 +29,20 @@ module Okey
     end
     
     def send(hash)
-      @websocket.send(hash.to_json)
+      #p hash.to_
+      if hash[:turn] == @position
+        if hash[:action] == :throw_tile
+          tile = hash[:tile]
+          # Let's draw center tile
+          
+          # TODO should call call back .......
+          @draw_callback.call(true) # center = true
+        elsif hash[:action] == :draw_tile
+          tile = hash[:tile]
+          # Let's throw what we have drawn
+          @throw_callback.call(tile)
+        end
+      end
     end
     
     def onmessage(&blk)
@@ -40,14 +53,15 @@ module Okey
   
     end
     
-    # def play_draw(left_tile, &block)
-      # @draw_callback = block
-      # OkeyBot.play_draw(left_tile, @hand)
-    # end
-#     
-    # def play_throw(retreived_tile, &block)
-      # OkeyBot.play_throw(retreived_tile, @hand)
-    # end
+    def play_draw(&block)
+      @draw_callback = block
+      #OkeyBot.play_draw(left_tile, @hand)
+    end
+    
+    def play_throw(&block)
+      @throw_callback = block
+      #OkeyBot.play_throw(retreived_tile, @hand)
+    end
     
   end
   
