@@ -20,7 +20,7 @@ module Okey
         @players.delete(user)
       }
       # subscribe
-      user.send({ :status => :success, :payload => { :message => "authentication success" }})
+      user.send({ :status => :success, :message => "authentication success" })
       @players << user
     end
 
@@ -92,7 +92,7 @@ module Okey
       @empty_rooms.each_value { |room|
         room_list << { :room_name => room.name, :count => room.count }
       }
-      json = { :status => :lounge_update, :payload => { :player_count => @players.length, :list => room_list }}
+      json = { :status => :lounge_update, :player_count => @players.length, :list => room_list }
       user.send(json)
     end
 

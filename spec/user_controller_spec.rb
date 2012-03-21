@@ -29,7 +29,7 @@ describe Okey::UserController do
   describe "authentication" do
     before(:each) do
       @user = Okey::User.new(FakeWebSocketClient.new({}))
-      @json_attr = { :action => 'authenticate', :payload => { :version => '0.0.0', :username => 'irmak', :salt => 'qwerty' }}
+      @json_attr = { :action => 'authenticate', :version => '0.0.0', :username => 'irmak', :salt => 'qwerty' }
       controller = Okey::UserController.new
       controller.subscribe(@user)
     end
@@ -43,7 +43,7 @@ describe Okey::UserController do
             json = @user.websocket.sent_data
             parsed = JSON.parse(json)
             parsed["status"].should == "error"
-            parsed["payload"]["message"].should == "messaging error"
+            parsed["message"].should == "messaging error"
 
             done
           }
@@ -55,7 +55,7 @@ describe Okey::UserController do
             json = @user.websocket.sent_data
             parsed = JSON.parse(json)
             parsed["status"].should == "error"
-            parsed["payload"]["message"].should == "messaging error"
+            parsed["message"].should == "messaging error"
 
             done
           }
@@ -68,7 +68,7 @@ describe Okey::UserController do
             json = @user.websocket.sent_data
             parsed = JSON.parse(json)
             parsed["status"].should == "error"
-            parsed["payload"]["message"].should == "messaging error"
+            parsed["message"].should == "messaging error"
 
             done
           }
@@ -77,13 +77,13 @@ describe Okey::UserController do
 
       it "should return fail json message on different version" do
         em {
-          @json_attr[:payload].merge!({:version => '1.1.1'})
+          @json_attr.merge!({:version => '1.1.1'})
           @user.websocket.get_onmessage.call(@json_attr.to_json)
 
           json = @user.websocket.sent_data
           parsed = JSON.parse(json)
           parsed["status"].should == "error"
-          parsed["payload"]["message"].should == "incompatible version"
+          parsed["message"].should == "incompatible version"
 
           done
         }
@@ -93,26 +93,26 @@ describe Okey::UserController do
 
       it "should return authentication error message on invalid username" do
         em {
-          @json_attr[:payload].merge!({:username => ''})
+          @json_attr.merge!({:username => ''})
           @user.websocket.get_onmessage.call(@json_attr.to_json)
 
           json = @user.websocket.sent_data
           parsed = JSON.parse(json)
           parsed["status"].should == "error"
-          parsed["payload"]["message"].should == "authentication error"
+          parsed["message"].should == "authentication error"
 
           done
         }
       end
       it "should return authentication error message on empty username" do
         em {
-          @json_attr[:payload].delete(:username)
+          @json_attr.delete(:username)
           @user.websocket.get_onmessage.call(@json_attr.to_json)
 
           json = @user.websocket.sent_data
           parsed = JSON.parse(json)
           parsed["status"].should == "error"
-          parsed["payload"]["message"].should == "authentication error"
+          parsed["message"].should == "authentication error"
 
           done
         }
@@ -127,7 +127,7 @@ describe Okey::UserController do
         em {
           old_block = @user.websocket.get_onmessage
           @user.websocket.get_onmessage.call(@json_attr.to_json)
-          @user.username.should == @json_attr[:payload][:username]
+          @user.username.should == @json_attr[:username]
 
           done
         }

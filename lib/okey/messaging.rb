@@ -7,32 +7,32 @@ module Okey
   
   class AuthenticationMessage
     def self.getJSON(status, state_def, message)
-      { :status => status, :payload => { :message => message }}
+      { :status => status, :message => message }
     end
   end
   
   class LoungeMessage
     def self.getJSON(status, state_def, message)
-      { :status => status, :payload => { :message => message }}
+      { :status => status, :message => message }
     end
   end
   
   class RoomMessage
     def self.getJSON(status, state_def, message)
-      { :status => status, :payload => { :message => message }}
+      { :status => status, :message => message }
     end
   end
   
   class GameMessage
     def self.getJSON(status, state_def, message)
-      { :status => status, :payload => { :message => message }}
+      { :status => status, :message => message }
     end
   end
 
   
   class RoomChannelMessage
     # def self.getJSON(status, state_def, message)
-      # { :status => status, :payload => { :message => message }}.to_json
+      # { :status => status, :message => message }.to_json
     # end
   end
   

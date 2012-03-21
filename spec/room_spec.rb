@@ -256,7 +256,7 @@ describe Okey::Room do
             parsed = JSON.parse(json)
         
             parsed['status'].should == 'error'
-            parsed['payload']['message'].should == 'messaging error'
+            parsed['message'].should == 'messaging error'
             done
           }
         end
@@ -269,7 +269,7 @@ describe Okey::Room do
             parsed = JSON.parse(json)
         
             parsed['status'].should == 'error'
-            parsed['payload']['message'].should == 'messaging error'
+            parsed['message'].should == 'messaging error'
             done
           }
         end
@@ -312,7 +312,7 @@ describe Okey::Room do
             parsed = JSON.parse(json)
         
             parsed['status'].should == 'error'
-            parsed['payload']['message'].should == 'messaging error'
+            parsed['message'].should == 'messaging error'
             done
           }
         end
@@ -327,7 +327,7 @@ describe Okey::Room do
             parsed = JSON.parse(json)
         
             parsed['status'].should == 'error'
-            parsed['payload']['message'].should == 'messaging error'
+            parsed['message'].should == 'messaging error'
             done
           }
         end
@@ -339,7 +339,7 @@ describe Okey::Room do
             parsed = JSON.parse(json)
         
             parsed['status'].should == 'error'
-            parsed['payload']['message'].should == 'messaging error'
+            parsed['message'].should == 'messaging error'
             done
           }
         end
@@ -397,7 +397,7 @@ describe Okey::Room do
             parsed = JSON.parse(json)
         
             parsed['status'].should == 'error'
-            parsed['payload']['message'].should == 'messaging error'
+            parsed['message'].should == 'messaging error'
             done
           }
         end
@@ -409,7 +409,7 @@ describe Okey::Room do
             parsed = JSON.parse(json)
         
             parsed['status'].should == 'error'
-            parsed['payload']['message'].should == 'messaging error'
+            parsed['message'].should == 'messaging error'
             done
           }
         end
@@ -442,7 +442,7 @@ describe Okey::Room do
           parsed = JSON.parse(json)
 
           parsed["status"].should == "error"
-          parsed["payload"]["message"].should == "messaging error"
+          parsed["message"].should == "messaging error"
 
           done
         }
@@ -455,7 +455,7 @@ describe Okey::Room do
           parsed = JSON.parse(json)
 
           parsed["status"].should == "error"
-          parsed["payload"]["message"].should == "messaging error"
+          parsed["message"].should == "messaging error"
 
           done
         }
@@ -468,7 +468,7 @@ describe Okey::Room do
           parsed = JSON.parse(json)
 
           parsed["status"].should == "error"
-          parsed["payload"]["message"].should == "messaging error"
+          parsed["message"].should == "messaging error"
 
           done
         }

@@ -31,12 +31,12 @@ module Okey
       end
 
       return AuthenticationMessage.getJSON(:error, nil, "messaging error") if json.nil? || json["action"] != "authenticate"
-      return AuthenticationMessage.getJSON(:error, nil, "incompatible version") if json["payload"]["version"] != Server.version
+      return AuthenticationMessage.getJSON(:error, nil, "incompatible version") if json["version"] != Server.version
 
-      authenticated = authenticate(json["payload"]["username"], json["payload"]["salt"])
+      authenticated = authenticate(json["username"], json["salt"])
       return AuthenticationMessage.getJSON(:error, nil, "authentication error") unless authenticated
 
-      user.username = json["payload"]["username"]
+      user.username = json["username"]
       user.authenticated = true
       nil
     end

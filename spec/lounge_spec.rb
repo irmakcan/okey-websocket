@@ -31,7 +31,7 @@ describe Okey::Lounge do
         json = @user.websocket.sent_data
         parsed = JSON.parse(json)
         parsed["status"].should == "success"
-        parsed["payload"]["message"].should == "authentication success"
+        parsed["message"].should == "authentication success"
 
         done
       }
@@ -130,7 +130,7 @@ describe Okey::Lounge do
           parsed = JSON.parse(json)
 
           parsed["status"].should == "error"
-          parsed["payload"]["message"].should == "messaging error"
+          parsed["message"].should == "messaging error"
 
           done
         }
@@ -143,7 +143,7 @@ describe Okey::Lounge do
           parsed = JSON.parse(json)
 
           parsed["status"].should == "error"
-          parsed["payload"]["message"].should == "messaging error"
+          parsed["message"].should == "messaging error"
 
           done
         }
@@ -156,7 +156,7 @@ describe Okey::Lounge do
           parsed = JSON.parse(json)
 
           parsed["status"].should == "error"
-          parsed["payload"]["message"].should == "messaging error"
+          parsed["message"].should == "messaging error"
 
           done
         }
@@ -199,8 +199,8 @@ describe Okey::Lounge do
           parsed = JSON.parse(json)
 
           parsed["status"].should == "lounge_update"
-          parsed["payload"]["list"].should be_instance_of(Array)
-          parsed["payload"]["player_count"].to_i.should == @lounge.instance_variable_get(:@players).length
+          parsed["list"].should be_instance_of(Array)
+          parsed["player_count"].to_i.should == @lounge.instance_variable_get(:@players).length
           done
         }
       end
@@ -255,7 +255,7 @@ describe Okey::Lounge do
             parsed = JSON.parse(json)
 
             parsed["status"].should == "error"
-            parsed["payload"]["message"].should == "room is full"
+            parsed["message"].should == "room is full"
             done
           }
         end
@@ -267,7 +267,7 @@ describe Okey::Lounge do
             parsed = JSON.parse(json)
 
             parsed["status"].should == "error"
-            parsed["payload"]["message"].should == "cannot find the room"
+            parsed["message"].should == "cannot find the room"
             done
           }
         end
@@ -281,7 +281,7 @@ describe Okey::Lounge do
           parsed = JSON.parse(json)
 
           parsed["status"].should == "error"
-          parsed["payload"]["message"].should == "room name cannot be empty"
+          parsed["message"].should == "room name cannot be empty"
 
           @user.websocket.sent_data = nil
           @join_json_attr.delete(:room_name)
@@ -290,7 +290,7 @@ describe Okey::Lounge do
           parsed = JSON.parse(json)
 
           parsed["status"].should == "error"
-          parsed["payload"]["message"].should == "room name cannot be empty"
+          parsed["message"].should == "room name cannot be empty"
           done
         }
       end
@@ -327,7 +327,7 @@ describe Okey::Lounge do
             parsed = JSON.parse(json)
 
             parsed["status"].should == "error"
-            parsed["payload"]["message"].should == "room name is already taken"
+            parsed["message"].should == "room name is already taken"
 
             done
           }
@@ -340,7 +340,7 @@ describe Okey::Lounge do
             parsed = JSON.parse(json)
 
             parsed["status"].should == "error"
-            parsed["payload"]["message"].should == "room name cannot be empty"
+            parsed["message"].should == "room name cannot be empty"
 
             @user.websocket.sent_data = nil
             @create_json_attr.delete(:room_name)
@@ -349,7 +349,7 @@ describe Okey::Lounge do
             parsed = JSON.parse(json)
 
             parsed["status"].should == "error"
-            parsed["payload"]["message"].should == "room name cannot be empty"
+            parsed["message"].should == "room name cannot be empty"
             done
           }
         end

@@ -22,7 +22,7 @@ module Okey
     end
     
     def version
-      @parsed["payload"]["version"]
+      @parsed["version"]
     end
     
     

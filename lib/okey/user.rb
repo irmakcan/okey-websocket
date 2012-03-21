@@ -53,14 +53,18 @@ module Okey
   
     end
     
-    def play_draw(&block)
+    def draw_callback(&block)
       @draw_callback = block
       #OkeyBot.play_draw(left_tile, @hand)
     end
     
-    def play_throw(&block)
+    def throw_callback(&block)
       @throw_callback = block
       #OkeyBot.play_throw(retreived_tile, @hand)
+    end
+    
+    def finish_callback(&block)
+      @finish_callback = block
     end
     
   end

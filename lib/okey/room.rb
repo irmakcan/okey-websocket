@@ -45,14 +45,18 @@ module Okey
       if @table.state == :started
         bot = @table.create_bot(user.position)
         join_room(bot)
-        bot.play_throw do |tile|
+        bot.throw_callback do |tile|
           success = @table.throw_tile(bot, tile)
           raise "dsa" unless success
           push_throw(tile)
         end
-        bot.play_draw do |center|
+        bot.draw_callback do |center|
           tile = @table.draw_tile(bot, center)
           push_draw(bot, tile) if tile
+        end
+        bot.finish_callback do |hand, tile|
+          @table.throw_to_finish(bot, hand, tile)
+          handle_finish(bot, hand)
         end
         
         if @table.turn == bot.position
@@ -98,7 +102,7 @@ module Okey
                         
       @table.chairs.each_value do |usr|
         leave_room(usr)
-        @lounge.join_lounge(usr)
+        @lounge.join_lounge(usr) unless usr.bot?
       end
     end
 
