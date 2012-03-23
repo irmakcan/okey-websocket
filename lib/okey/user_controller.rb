@@ -33,7 +33,7 @@ module Okey
       return AuthenticationMessage.getJSON(:error, nil, "messaging error") if json.nil? || json["action"] != "authenticate"
       return AuthenticationMessage.getJSON(:error, nil, "incompatible version") if json["version"] != Server.version
 
-      authenticated = authenticate(json["username"], json["salt"])
+      authenticated = authenticate(json["username"], json["access_token"])
       return AuthenticationMessage.getJSON(:error, nil, "authentication error") unless authenticated
 
       user.username = json["username"]
@@ -41,13 +41,14 @@ module Okey
       nil
     end
 
-    def authenticate(username, cookie_salt)
+    def authenticate(username, access_token)
       if username.nil? || username.empty? || username =~ /\s/
-      return false
+        return false
+      end
+      unless access_token.nil?
+        return true
       end
       # do authenticate
-
-      true
     end
 
   end
