@@ -39,7 +39,7 @@ module Okey
             @user_controller.subscribe(user)
           end
         end
-        WebServer.run!(:bind => @host, :port => @http_port, :ws_port => @ws_port, :environment => @env)
+        
       end
     end
 
