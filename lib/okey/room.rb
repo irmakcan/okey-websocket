@@ -114,35 +114,35 @@ module Okey
         json = nil
       end
       
-      return RoomMessage.getJSON(:error, nil, "messaging error") if json.nil?
+      return RoomMessage.getJSON(:error, nil, "Messaging error") if json.nil?
       
       error_msg = nil
       case json['action']
       when 'throw_tile'
         tile = TileParser.parse(json['tile'])
-        return RoomMessage.getJSON(:error, nil, 'messaging error') if tile.nil? || !@table.game_started?
+        return RoomMessage.getJSON(:error, nil, 'Messaging error') if tile.nil? || !@table.game_started?
         success = @table.throw_tile(user, tile) # returns logical error if occurs
         if success
           push_throw(tile)
         else
           if user.position != @table.turn
-            error_msg = GameMessage.getJSON(:error, nil, 'not your turn')
+            error_msg = GameMessage.getJSON(:error, nil, 'Not your turn')
           else
-            error_msg = GameMessage.getJSON(:error, nil, 'invalid move')
+            error_msg = GameMessage.getJSON(:error, nil, 'Invalid move')
           end
         end
         
       when 'draw_tile'
         center = json['center']
-        return RoomMessage.getJSON(:error, nil, 'messaging error') if center.nil? || !@table.game_started?
+        return RoomMessage.getJSON(:error, nil, 'Messaging error') if center.nil? || !@table.game_started?
         tile = @table.draw_tile(user, !!center)
         if tile
           push_draw(user, tile)
         else
           if user.position != @table.turn
-            error_msg = GameMessage.getJSON(:error, nil, 'not your turn')
+            error_msg = GameMessage.getJSON(:error, nil, 'Not your turn')
           else
-            error_msg = GameMessage.getJSON(:error, nil, 'invalid move')
+            error_msg = GameMessage.getJSON(:error, nil, 'Invalid move')
           end
         end
         
@@ -167,7 +167,7 @@ module Okey
           end
         end
         
-        return RoomMessage.getJSON(:error, nil, 'messaging error') if tile.nil? || !@table.game_started? || hand.nil? || hand.empty?
+        return RoomMessage.getJSON(:error, nil, 'Messaging error') if tile.nil? || !@table.game_started? || hand.nil? || hand.empty?
         success = @table.throw_to_finish(user, hand, tile)
         
         
@@ -176,9 +176,9 @@ module Okey
           handle_finish(user, hand)
         else
           if user.position != @table.turn
-            error_msg = GameMessage.getJSON(:error, nil, 'not your turn')
+            error_msg = GameMessage.getJSON(:error, nil, 'Not your turn')
           else
-            error_msg = GameMessage.getJSON(:error, nil, 'invalid move')
+            error_msg = GameMessage.getJSON(:error, nil, 'Invalid move')
           end
         end
         
@@ -186,7 +186,7 @@ module Okey
         leave_room(user)
         @lounge.join_lounge(user)
       else # Send err
-        error_msg = RoomMessage.getJSON(:error, nil, "messaging error")
+        error_msg = RoomMessage.getJSON(:error, nil, "Messaging error")
       end
       error_msg
     end

@@ -31,7 +31,7 @@ describe Okey::Game do
         json.should_not be_nil
         parsed = JSON.parse(json)
 
-        parsed['action'].should == 'game_start'
+        parsed['status'].should == 'game_start'
         parsed['turn'].to_sym.should == game.instance_variable_get(:@turn)
         parsed['center_count'].to_i.should == game.instance_variable_get(:@tile_bag).center_tile_left
         parsed['hand'].should be_instance_of(Array)

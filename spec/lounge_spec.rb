@@ -31,7 +31,7 @@ describe Okey::Lounge do
         json = @user.websocket.sent_data
         parsed = JSON.parse(json)
         parsed["status"].should == "success"
-        parsed["message"].should == "authentication success"
+        parsed["message"].should == "Authentication success"
 
         done
       }
@@ -130,7 +130,7 @@ describe Okey::Lounge do
           parsed = JSON.parse(json)
 
           parsed["status"].should == "error"
-          parsed["message"].should == "messaging error"
+          parsed["message"].should == "Messaging error"
 
           done
         }
@@ -143,7 +143,7 @@ describe Okey::Lounge do
           parsed = JSON.parse(json)
 
           parsed["status"].should == "error"
-          parsed["message"].should == "messaging error"
+          parsed["message"].should == "Messaging error"
 
           done
         }
@@ -156,7 +156,7 @@ describe Okey::Lounge do
           parsed = JSON.parse(json)
 
           parsed["status"].should == "error"
-          parsed["message"].should == "messaging error"
+          parsed["message"].should == "Messaging error"
 
           done
         }
@@ -255,7 +255,7 @@ describe Okey::Lounge do
             parsed = JSON.parse(json)
 
             parsed["status"].should == "error"
-            parsed["message"].should == "room is full"
+            parsed["message"].should == "Room is full"
             done
           }
         end
@@ -267,7 +267,7 @@ describe Okey::Lounge do
             parsed = JSON.parse(json)
 
             parsed["status"].should == "error"
-            parsed["message"].should == "cannot find the room"
+            parsed["message"].should == "Cannot find the room"
             done
           }
         end
@@ -281,7 +281,7 @@ describe Okey::Lounge do
           parsed = JSON.parse(json)
 
           parsed["status"].should == "error"
-          parsed["message"].should == "room name cannot be empty"
+          parsed["message"].should == "Room name cannot be empty"
 
           @user.websocket.sent_data = nil
           @join_json_attr.delete(:room_name)
@@ -290,7 +290,7 @@ describe Okey::Lounge do
           parsed = JSON.parse(json)
 
           parsed["status"].should == "error"
-          parsed["message"].should == "room name cannot be empty"
+          parsed["message"].should == "Room name cannot be empty"
           done
         }
       end
@@ -327,29 +327,41 @@ describe Okey::Lounge do
             parsed = JSON.parse(json)
 
             parsed["status"].should == "error"
-            parsed["message"].should == "room name is already taken"
+            parsed["message"].should == "Room name is already taken"
 
             done
           }
         end
 
-        it "should send an error json if the room field is nil or empty" do
+        it "should send an error json if the room field is nil or empty or blank" do
           em {
+            # empty
             @user.websocket.get_onmessage.call((@create_json_attr.merge!({ :room_name => "" })).to_json)
             json = @user.websocket.sent_data
             parsed = JSON.parse(json)
 
             parsed["status"].should == "error"
-            parsed["message"].should == "room name cannot be empty"
+            parsed["message"].should == "Room name cannot be blank"
 
             @user.websocket.sent_data = nil
+            #nil
             @create_json_attr.delete(:room_name)
             @user.websocket.get_onmessage.call(@create_json_attr.to_json)
             json = @user.websocket.sent_data
             parsed = JSON.parse(json)
 
             parsed["status"].should == "error"
-            parsed["message"].should == "room name cannot be empty"
+            parsed["message"].should == "Room name cannot be blank"
+            
+            @user.websocket.sent_data = nil
+            #blank
+            @create_json_attr.delete(:room_name)
+            @user.websocket.get_onmessage.call((@create_json_attr.merge!({ :room_name => "  " })).to_json)
+            json = @user.websocket.sent_data
+            parsed = JSON.parse(json)
+
+            parsed["status"].should == "error"
+            parsed["message"].should == "Room name cannot be blank"
             done
           }
         end

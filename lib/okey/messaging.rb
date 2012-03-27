@@ -44,7 +44,7 @@ module Okey
       # chairs.each { |position, user|
         # name_position << { :name => user.username, :position => position }
       # }
-      # { :action => action, :users => name_position }.to_json
+      # { :status => action, :users => name_position }.to_json
     # end
   # end
   
@@ -56,7 +56,7 @@ module Okey
       chairs.each { |pos, usr|
         name_position << { :name => usr.username, :position => pos } if user.position != pos
       }
-      { :action => action, :position => user.position, :users => name_position }
+      { :status => action, :position => user.position, :users => name_position }
     end
   end
   
@@ -64,7 +64,7 @@ module Okey
     def self.action; 'new_user'; end
     
     def self.getJSON(user)
-      { :action => action, :position => user.position, :username => user.username }
+      { :status => action, :position => user.position, :username => user.username }
     end
   end
   
@@ -72,7 +72,7 @@ module Okey
     def self.action; 'user_leave'; end
     
     def self.getJSON(position)
-      { :action => action, :position => position }
+      { :status => action, :position => position }
     end
   end
   
@@ -80,7 +80,7 @@ module Okey
     def self.action; 'user_replace'; end
     
     def self.getJSON(position, replaced_username)
-      { :action => action, :position => position, :replaced_username => replaced_username }
+      { :status => action, :position => position, :replaced_username => replaced_username }
     end
   end
   
@@ -89,7 +89,7 @@ module Okey
     
     # turn => true | false
     def self.getJSON(turn, center_tile_count, user_hand, indicator_tile)
-      { :action => action, 
+      { :status => action, 
         :turn => turn, 
         :center_count => center_tile_count, 
         :hand => user_hand, 
@@ -103,7 +103,7 @@ module Okey
     
     # turn => true | false
     def self.getJSON(turn, center_tile_count, changed_corner)
-      { :action => action, :turn => turn, :center_count => center_tile_count, :changed_corner => changed_corner }
+      { :status => action, :turn => turn, :center_count => center_tile_count, :changed_corner => changed_corner }
     end
   end
   

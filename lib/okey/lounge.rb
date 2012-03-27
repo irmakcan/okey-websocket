@@ -20,7 +20,7 @@ module Okey
         @players.delete(user)
       }
       # subscribe
-      user.send({ :status => :success, :message => "authentication success" })
+      user.send({ :status => :success, :message => "Authentication success" })
       @players << user
     end
 
@@ -44,24 +44,27 @@ module Okey
         json = nil
       end
       
-      return LoungeMessage.getJSON(:error, nil, 'messaging error') if json.nil?
+      return LoungeMessage.getJSON(:error, nil, 'Messaging error') if json.nil?
       error = nil
       case json['action']
       when 'join_room'
         room_name = json['room_name']
-        return LoungeMessage.getJSON(:error, nil, 'room name cannot be empty') if room_name.nil? || room_name.empty?
+        return LoungeMessage.getJSON(:error, nil, 'Room name cannot be empty') if room_name.nil? || room_name.empty?
         error = join_room(json['room_name'], user)
       when 'refresh_list'
         send_room_json(user)
       when 'create_room'
         room_name = json['room_name']
-        return LoungeMessage.getJSON(:error, nil, 'room name cannot be empty') if room_name.nil? || room_name.empty?
+        unless room_name.nil?
+          room_name = room_name.slice(/\S+(\s*\S+)*/); # Get rid of the spaces
+        end
+        return LoungeMessage.getJSON(:error, nil, 'Room name cannot be blank') if room_name.nil? || room_name.empty?
         error = create_and_join_room(room_name, user)
       when 'leave_lounge'
         leave_lounge(user)
         @user_controller.subscribe(user)
       else # Send err
-        return LoungeMessage.getJSON(:error, nil, 'messaging error')
+        return LoungeMessage.getJSON(:error, nil, 'Messaging error')
       end
       error
     end
@@ -69,7 +72,7 @@ module Okey
     def join_room(room_name, user)
       room = @empty_rooms[room_name]
       
-      return LoungeMessage.getJSON(:error, nil, (@full_rooms[room_name].nil? ? 'cannot find the room' : 'room is full')) unless room
+      return LoungeMessage.getJSON(:error, nil, (@full_rooms[room_name].nil? ? 'Cannot find the room' : 'Room is full')) unless room
       room.join_room(user)
       if room.full?
         @full_rooms.merge!({ room.name => @empty_rooms.delete(room.name) })
@@ -78,7 +81,7 @@ module Okey
     end
 
     def create_and_join_room(room_name, user)
-      return LoungeMessage.getJSON(:error, nil, 'room name is already taken') if @empty_rooms.has_key?(room_name) || @full_rooms.has_key?(room_name)
+      return LoungeMessage.getJSON(:error, nil, 'Room name is already taken') if @empty_rooms.has_key?(room_name) || @full_rooms.has_key?(room_name)
       
       room = Room.new(self, room_name)
       room.join_room(user)

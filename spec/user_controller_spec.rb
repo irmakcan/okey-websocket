@@ -43,7 +43,7 @@ describe Okey::UserController do
             json = @user.websocket.sent_data
             parsed = JSON.parse(json)
             parsed["status"].should == "error"
-            parsed["message"].should == "messaging error"
+            parsed["message"].should == "Messaging error"
 
             done
           }
@@ -55,7 +55,7 @@ describe Okey::UserController do
             json = @user.websocket.sent_data
             parsed = JSON.parse(json)
             parsed["status"].should == "error"
-            parsed["message"].should == "messaging error"
+            parsed["message"].should == "Messaging error"
 
             done
           }
@@ -68,7 +68,7 @@ describe Okey::UserController do
             json = @user.websocket.sent_data
             parsed = JSON.parse(json)
             parsed["status"].should == "error"
-            parsed["message"].should == "messaging error"
+            parsed["message"].should == "Messaging error"
 
             done
           }
@@ -83,7 +83,7 @@ describe Okey::UserController do
           json = @user.websocket.sent_data
           parsed = JSON.parse(json)
           parsed["status"].should == "error"
-          parsed["message"].should == "incompatible version"
+          parsed["message"].should == "Incompatible version"
 
           done
         }
@@ -99,7 +99,7 @@ describe Okey::UserController do
           json = @user.websocket.sent_data
           parsed = JSON.parse(json)
           parsed["status"].should == "error"
-          parsed["message"].should == "authentication error"
+          parsed["message"].should == "Authentication error"
 
           done
         }
@@ -112,7 +112,7 @@ describe Okey::UserController do
           json = @user.websocket.sent_data
           parsed = JSON.parse(json)
           parsed["status"].should == "error"
-          parsed["message"].should == "authentication error"
+          parsed["message"].should == "Authentication error"
 
           done
         }
