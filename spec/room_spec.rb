@@ -76,22 +76,6 @@ describe Okey::Room do
       }
     end
     
-    it "should initialize the game if the room is full" do
-      em {
-        @room.join_room(@user)
-        
-        user1 = Okey::User.new(FakeWebSocketClient.new({}))
-        user2 = Okey::User.new(FakeWebSocketClient.new({}))
-        user3 = Okey::User.new(FakeWebSocketClient.new({}))
-
-        @room.join_room(user1)
-        @room.join_room(user2)
-        Okey::Game.should_receive(:new).with(@room.instance_variable_get(:@table))
-        @room.join_room(user3)
-        
-        done
-      }
-    end
     
     it "should send a success message with users positions" do
       em {
@@ -234,8 +218,31 @@ describe Okey::Room do
         @user.websocket.get_onmessage.call(leave_req_attr.to_json)
         done
       }
-    end
+      end
       
+    end
+    
+    describe "ready" do
+      it "should initialize the game if the room is full and all users are ready" do
+        em {
+          ready_req_attr = { :action => :ready }
+          @user.websocket.get_onmessage.call(ready_req_attr.to_json)
+          
+          user1 = Okey::User.new(FakeWebSocketClient.new({}))
+          user2 = Okey::User.new(FakeWebSocketClient.new({}))
+          user3 = Okey::User.new(FakeWebSocketClient.new({}))
+  
+          @room.join_room(user1)
+          user1.websocket.get_onmessage.call(ready_req_attr.to_json)
+          @room.join_room(user2)
+          user2.websocket.get_onmessage.call(ready_req_attr.to_json)
+          @room.join_room(user3)
+          Okey::Game.should_receive(:new).with(@room.instance_variable_get(:@table))
+          user3.websocket.get_onmessage.call(ready_req_attr.to_json)
+          
+          done
+        }
+      end
     end
     
     describe "throw_tile" do

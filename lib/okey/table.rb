@@ -60,6 +60,15 @@ module Okey
       user_count <= 0
     end
     
+    def all_ready?
+      ready = true
+      @chairs.each_value do |player|
+        ready &&= player.ready?
+      end
+      ready
+    end
+     
+    
     def game_started?
       @state == :started
     end

@@ -75,9 +75,16 @@ module Okey
     
     def initialize(websocket)
       @websocket = websocket
+      @ready = false
     end
 
-
+    def ready?
+      @ready
+    end
+    
+    def ready=(state)
+      @ready = state
+    end
 
     def authenticated?
       @authenticated

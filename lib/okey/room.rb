@@ -30,11 +30,11 @@ module Okey
       @table.chairs.each do |position, usr|
         usr.send(channel_msg) if user.position != position
       end
-      # start game
-      @table.initialize_game if @table.full? && @table.state == :waiting
+      
     end
 
     def leave_room(user)
+      user.ready = false #
       @table.remove(user.position)
       @lounge.destroy_room(self) if @table.empty?
       @room_channel.unsubscribe(user.sid)
@@ -59,7 +59,7 @@ module Okey
           handle_finish(bot, hand)
         end
         
-        if @table.turn == bot.position
+        if @table.turn == bot.position # TODO
           # Try draw
           
           # Throw
@@ -145,7 +145,10 @@ module Okey
             error_msg = GameMessage.getJSON(:error, nil, 'Invalid move')
           end
         end
-        
+      when 'ready'
+        user.ready = true
+        # start game
+        @table.initialize_game if @table.full? && @table.all_ready? && @table.state == :waiting
       when 'throw_to_finish'
         tile = TileParser.parse(json['tile'])
         raw_hand = json['hand']
