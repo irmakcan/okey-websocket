@@ -58,6 +58,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  daemons (~> 1.1.8)
   em-hiredis!
   em-http-request
   em-spec!
