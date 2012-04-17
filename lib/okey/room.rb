@@ -81,7 +81,7 @@ module Okey
     
     def push_draw(user, tile)
       @table.chairs.each do |position, usr|
-        usr.send({ :action =>       :draw_tile,
+        usr.send({ :status =>       :draw_tile,
                    :tile =>         (position == user.position ? tile : nil),
                    :turn =>         @table.turn,
                    :center_count => @table.middle_tile_count })
@@ -89,13 +89,13 @@ module Okey
     end
     
     def push_throw(tile)
-      @room_channel.push({ :action => :throw_tile,
+      @room_channel.push({ :status => :throw_tile,
                            :turn => @table.turn,
                            :tile => tile })
     end
     
     def handle_finish(user, hand)
-      @room_channel.push({ :action =>   :user_won,
+      @room_channel.push({ :status =>   :user_won,
                            :turn =>     user.position,
                            :username => user.username,
                            :hand =>     hand })

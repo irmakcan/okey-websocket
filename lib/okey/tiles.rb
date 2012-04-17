@@ -54,7 +54,8 @@ module Okey
     
     def throw_tile(position, tile)
       return false if @hands[position].length != 15 || !@hands[position].include?(tile)
-      t = @hands[position].delete(tile)
+      index = @hands[position].index(tile)
+      t = @hands[position].delete_at(index)
       @corner_tiles[RIGHT_CORNER[position]].push(t)
       true
     end

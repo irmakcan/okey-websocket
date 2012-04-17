@@ -24,3 +24,7 @@ namespace :daemon do
     system("bundle exec ruby bin/daemon.rb stop")
   end
 end
+
+task :sync do
+  system("rsync -rav -e ssh ../okey-websocket/ irmak@www.okey.irmakcan.com:/home/irmak/projects/okey-websocket")
+end

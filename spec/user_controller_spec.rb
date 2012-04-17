@@ -141,7 +141,14 @@ describe Okey::UserController do
           done
         }
       end
-      it "should change the onclose Proc"
+      it "should change the onclose Proc" do
+        em {
+          old_block = @user.websocket.get_onclose
+          @user.websocket.get_onmessage.call(@json_attr.to_json)
+          @user.websocket.get_onclose.should_not == old_block
+          done
+        }
+      end
     end
   end
 

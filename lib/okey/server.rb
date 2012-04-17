@@ -2,6 +2,7 @@ module Okey
   class Server
 
     attr_reader :env, :host, :ws_host, :ws_port, :http_port
+    @@version = nil
     def self.start(opts = {})
       new(opts).start
     end
