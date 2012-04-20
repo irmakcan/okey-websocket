@@ -38,7 +38,7 @@ module Okey
       @table.remove(user.position)
       @lounge.destroy_room(self) if @table.empty?
       @room_channel.unsubscribe(user.sid)
-      # publish leaved
+      # publish leaved TODO delete
       @room_channel.push(LeaveChannelMessage.getJSON(user.position))
       
       # Add Bot if game is already started

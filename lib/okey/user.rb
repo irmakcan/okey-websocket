@@ -29,15 +29,13 @@ module Okey
     end
     
     def send(hash)
-      #p hash.to_
       if hash[:turn] == @position
-        if hash[:action] == :throw_tile
+        if hash[:status] == :throw_tile
           tile = hash[:tile]
           # Let's draw center tile
-          
           # TODO should call call back .......
           @draw_callback.call(true) # center = true
-        elsif hash[:action] == :draw_tile
+        elsif hash[:status] == :draw_tile
           tile = hash[:tile]
           # Let's throw what we have drawn
           @throw_callback.call(tile)
