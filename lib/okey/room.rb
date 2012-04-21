@@ -97,10 +97,17 @@ module Okey
     end
     
     def handle_finish(user, hand)
-      @room_channel.push({ :status =>   :user_won,
-                           :turn =>     user.position,
-                           :username => user.username,
-                           :hand =>     hand })
+      if user.nil? # push tie
+        @room_channel.push({ :status =>   :user_won,
+                             :turn =>     nil,
+                             :username => nil,
+                             :hand =>     nil })
+      else
+        @room_channel.push({ :status =>   :user_won,
+                             :turn =>     user.position,
+                             :username => user.username,
+                             :hand =>     hand })
+      end
                         
       @table.chairs.each_value do |usr|
         leave_room(usr)
@@ -132,6 +139,10 @@ module Okey
         success = @table.throw_tile(user, tile) # returns logical error if occurs
         if success
           push_throw(tile)
+          if @table.middle_tile_count <= 0
+            # Tilebag run out of tiles (declare tie)
+            handle_finish(nil, nil)
+          end
         else
           if user.position != @table.turn
             error_msg = GameMessage.getJSON(:error, nil, 'Not your turn')

@@ -25,26 +25,6 @@ module Okey
         @turn = Chair.next(user.position)
       end
           
-        ########
-        # AI TODO
-        # unless @bots[@turn].nil?
-          # bot = @bots[@turn]
-          # bot.play_draw(tile) do |center|
-            # if center == :center
-              # t = draw_tile(bot, true)
-            # else
-              # t = draw_tile(bot, false)
-            # end
-            # bot.play_throw(t) do |t,c|
-              # if c == :center
-                # throw_to_finish(bot, @tile_bag.hands[@turn], t)
-              # else
-                # throw_tile(bot, t)
-              # end
-            # end
-          # end
-        # end
-        ########
       success
     end
 

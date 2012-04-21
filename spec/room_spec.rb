@@ -311,6 +311,20 @@ describe Okey::Room do
           }
         end
         
+        it "should declare a tie game if there is no tile left on center tile stack" do
+          em {
+            table = @room.instance_variable_get(:@table)
+            @room.should_receive(:handle_finish).with(nil, nil)
+            table.initialize_game
+            tile_bag = table.instance_variable_get(:@game).instance_variable_get(:@tile_bag)
+            bag = tile_bag.instance_variable_get(:@bag)
+            bag.clear
+            hand = tile_bag.instance_variable_get(:@hands)[@user.position]
+            @user.websocket.get_onmessage.call(@throw_tile_req_attr.merge!({:tile => hand.last.to_s}).to_json)
+            done
+          }
+        end
+        
       end
       
     end
