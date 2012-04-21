@@ -50,7 +50,7 @@ module Okey
           join_room(bot)
           bot.throw_callback do |tile|
             success = @table.throw_tile(bot, tile)
-            raise "dsa" unless success
+            raise "Should always success (Bot throw tile)" unless success
             push_throw(tile)
           end
           bot.draw_callback do |center|
@@ -68,8 +68,6 @@ module Okey
           
         end
       end
-      
-      
       
     end
 
@@ -108,6 +106,12 @@ module Okey
         leave_room(usr)
         @lounge.join_lounge(usr) unless usr.bot?
       end
+    end
+    
+    def push_chat(user, message)
+      @room_channel.push({ :status =>   :chat,
+                           :position => user.position,
+                           :message =>  message })
     end
 
     def handle_request(user, msg)
@@ -192,6 +196,8 @@ module Okey
       when 'leave_room'
         leave_room(user)
         @lounge.join_lounge(user)
+      when 'chat'
+        push_chat(user, json['message'])
       else # Send err
         error_msg = RoomMessage.getJSON(:error, nil, "Messaging error")
       end

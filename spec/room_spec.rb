@@ -245,6 +245,22 @@ describe Okey::Room do
       end
     end
     
+    describe "chat" do
+      it "should push chat message to the room channel" do
+        em {
+          chat_req_attr = { :action => :chat, :message => "This is a test message" }
+          @user.websocket.get_onmessage.call(chat_req_attr.to_json)
+          
+          json = @user.websocket.sent_data
+          parsed = JSON.parse(json)
+          parsed['status'].should == 'chat'
+          parsed['message'].should == chat_req_attr[:message]
+          parsed['position'].should == @user.position.to_s
+          done
+        }
+      end
+    end
+    
     describe "throw_tile" do
       
       before(:each) do
