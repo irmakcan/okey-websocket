@@ -24,6 +24,8 @@ module Okey
       @indicator = indicator
       @left_tile = left_tile
       @hand = hand.dup
+      
+      @ready = true
     end
     
     def bot?
@@ -83,6 +85,14 @@ module Okey
     
     def finish_callback(&block)
       @finish_callback = block
+    end
+    
+    def ready?
+      @ready
+    end
+    
+    def ready=(state)
+      @ready = state
     end
     
   end
