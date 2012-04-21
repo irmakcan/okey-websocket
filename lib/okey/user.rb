@@ -20,25 +20,47 @@ module Okey
   class OkeyBot < Player
     attr_accessor :sid
     
-    def initialize(hand)
-      @hand = hand
+    def initialize(hand, indicator, left_tile)
+      @indicator = indicator
+      @left_tile = left_tile
+      @hand = hand.dup
     end
     
     def bot?
       true
     end
     
+    def force_play
+      if @hand.length == 14
+        play_draw(@left_tile)
+      else
+        play_throw
+      end
+    end
+    
+    def play_draw(left_tile)
+      # if left_tile.nil? must draw from center
+      # For now let's always draw center tile
+      @draw_callback.call(true) # center = true
+    end
+    
+    def play_throw
+    # for now let's always throw the last tile in the hand
+      last_index = @hand.length - 1
+      tile = @hand.delete_at(last_index)
+      @throw_callback.call(tile)
+      
+    end
+    
     def send(hash)
       if hash[:turn] == @position
         if hash[:status] == :throw_tile
           tile = hash[:tile]
-          # Let's draw center tile
-          # TODO should call call back .......
-          @draw_callback.call(true) # center = true
+          play_draw(tile)
         elsif hash[:status] == :draw_tile
           tile = hash[:tile]
-          # Let's throw what we have drawn
-          @throw_callback.call(tile)
+          @hand.push(tile)
+          play_throw
         end
       end
     end
@@ -53,12 +75,10 @@ module Okey
     
     def draw_callback(&block)
       @draw_callback = block
-      #OkeyBot.play_draw(left_tile, @hand)
     end
     
     def throw_callback(&block)
       @throw_callback = block
-      #OkeyBot.play_throw(retreived_tile, @hand)
     end
     
     def finish_callback(&block)

@@ -6,7 +6,7 @@ module Okey
     RIGHT_CORNER = { :south => :se, :east => :ne, :north => :nw, :west => :sw }
     LEFT_CORNER  = { :south => :sw, :east => :se, :north => :ne, :west => :nw }
     
-    attr_reader :hands, :indicator
+    attr_reader :hands, :indicator, :corner_tiles
     
     def initialize
       @bag = []

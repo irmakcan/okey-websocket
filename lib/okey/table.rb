@@ -45,11 +45,11 @@ module Okey
     end
     
     def user_count
-      user_count = 0
+      count = 0
       @chairs.each_value do |player|
-        user_count += 1 unless player.bot?
+        count += 1 unless player.bot?
       end
-      user_count
+      count
     end
     
     def full?

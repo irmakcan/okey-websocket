@@ -36,37 +36,41 @@ module Okey
     def leave_room(user)
       user.ready = false #
       @table.remove(user.position)
-      @lounge.destroy_room(self) if @table.empty?
       @room_channel.unsubscribe(user.sid)
-      # publish leaved TODO delete
-      @room_channel.push(LeaveChannelMessage.getJSON(user.position))
       
-      # Add Bot if game is already started
-      if @table.state == :started
-        bot = @table.create_bot(user.position)
-        join_room(bot)
-        bot.throw_callback do |tile|
-          success = @table.throw_tile(bot, tile)
-          raise "dsa" unless success
-          push_throw(tile)
-        end
-        bot.draw_callback do |center|
-          tile = @table.draw_tile(bot, center)
-          push_draw(bot, tile) if tile
-        end
-        bot.finish_callback do |hand, tile|
-          @table.throw_to_finish(bot, hand, tile)
-          handle_finish(bot, hand)
-        end
+      if @table.empty?
+        @lounge.destroy_room(self)
+      else
+        # publish leaved if game not started
+        @room_channel.push(LeaveChannelMessage.getJSON(user.position)) unless @table.game_started?
         
-        if @table.turn == bot.position # TODO
-          # Try draw
+        # Add Bot if game is already started
+        if @table.game_started?
+          bot = @table.create_bot(user.position)
+          join_room(bot)
+          bot.throw_callback do |tile|
+            success = @table.throw_tile(bot, tile)
+            raise "dsa" unless success
+            push_throw(tile)
+          end
+          bot.draw_callback do |center|
+            tile = @table.draw_tile(bot, center)
+            push_draw(bot, tile) if tile
+          end
+          bot.finish_callback do |hand, tile|
+            @table.throw_to_finish(bot, hand, tile)
+            handle_finish(bot, hand)
+          end
           
-          # Throw
+          if @table.turn == bot.position # TODO
+            bot.force_play()
+          end
           
         end
-        
       end
+      
+      
+      
     end
 
     def count
