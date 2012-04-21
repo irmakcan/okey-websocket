@@ -21,10 +21,16 @@ namespace :daemon do
     puts "Server successfully started"
   end
   task :stop do
+    puts "Stopping Okey Server"
     system("bundle exec ruby bin/daemon.rb stop")
+  end
+  task :restart do
+    Rake::Task["daemon:stop"].invoke
+    Rake::Task["daemon:start"].invoke
   end
 end
 
 task :sync do
   system("rsync -rav -e ssh ../okey-websocket/ irmak@www.okey.irmakcan.com:/home/irmak/projects/okey-websocket")
 end
+
