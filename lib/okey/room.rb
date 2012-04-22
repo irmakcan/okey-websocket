@@ -47,6 +47,7 @@ module Okey
         # Add Bot if game is already started
         if @table.game_started?
           bot = @table.create_bot(user.position)
+          bot.username = 'Okey Bot'
           join_room(bot)
           bot.throw_callback do |tile|
             success = @table.throw_tile(bot, tile)
