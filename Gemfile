@@ -11,7 +11,7 @@ gem "thin"
 gem "sinatra"
 
 gem "json"
-gem "daemons", "~> 1.1.8"
+gem "thin"
 
 group :test do
   gem "rspec"

@@ -12,21 +12,21 @@ task :default => :spec
 desc "Run specs"
 RSpec::Core::RakeTask.new(:spec)
 
-namespace :daemon do
+namespace :thin do
   task :run do
-    system("bundle exec ruby bin/daemon.rb run")
+    system("thin start -R bin/daemon.rb")
   end
   task :start do
-    system("bundle exec ruby bin/daemon.rb start")
+    system("thin start -d -R bin/daemon.rb")
     puts "Server successfully started"
   end
   task :stop do
     puts "Stopping Okey Server"
-    system("bundle exec ruby bin/daemon.rb stop")
+    system("thin stop")
   end
   task :restart do
-    Rake::Task["daemon:stop"].invoke
-    Rake::Task["daemon:start"].invoke
+    Rake::Task["thin:stop"].invoke
+    Rake::Task["thin:start"].invoke
   end
 end
 

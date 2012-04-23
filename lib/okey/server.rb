@@ -33,8 +33,6 @@ module Okey
         trap("INT")  { stop_server }
 
         EventMachine::WebSocket.start(:host => @ws_host, :port => @ws_port, :debug => true) do |ws|
-
-          puts 'Establishing websocket'
           ws.onopen do
             user = User.new(ws)
             @user_controller.subscribe(user)
