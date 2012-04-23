@@ -31,6 +31,6 @@ namespace :thin do
 end
 
 task :sync do
-  system("rsync -rav -e ssh ../okey-websocket/ irmak@www.okey.irmakcan.com:/home/irmak/projects/okey-websocket")
+  system("rsync -rav -e ssh --exclude-from .gitignore ../okey-websocket/ irmak@www.okey.irmakcan.com:/home/irmak/projects/okey-websocket")
 end
 
