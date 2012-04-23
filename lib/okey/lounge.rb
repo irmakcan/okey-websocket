@@ -34,6 +34,18 @@ module Okey
       @full_rooms.delete(room.name) if r.nil?
     end
 
+
+    def join_room(room_name, user)
+      room = @empty_rooms[room_name]
+      
+      return LoungeMessage.getJSON(:error, nil, (@full_rooms[room_name].nil? ? 'Cannot find the room' : 'Room is full')) unless room
+      room.join_room(user)
+      if room.full?
+        @full_rooms.merge!({ room.name => @empty_rooms.delete(room.name) })
+      end
+      nil
+    end
+    
     private
 
     def handle_request(user, msg)
@@ -67,17 +79,6 @@ module Okey
         return LoungeMessage.getJSON(:error, nil, 'Messaging error')
       end
       error
-    end
-
-    def join_room(room_name, user)
-      room = @empty_rooms[room_name]
-      
-      return LoungeMessage.getJSON(:error, nil, (@full_rooms[room_name].nil? ? 'Cannot find the room' : 'Room is full')) unless room
-      room.join_room(user)
-      if room.full?
-        @full_rooms.merge!({ room.name => @empty_rooms.delete(room.name) })
-      end
-      nil
     end
 
     def create_and_join_room(room_name, user)

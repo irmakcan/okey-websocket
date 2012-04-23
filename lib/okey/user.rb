@@ -20,12 +20,18 @@ module Okey
   class OkeyBot < Player
     attr_accessor :sid
     
-    def initialize(hand, indicator, left_tile)
+    def initialize()
+      # @indicator = indicator
+      # @left_tile = left_tile
+      # @hand = hand.dup
+      @username = "Okey Bot"
+      @ready = true
+    end
+    
+    def init_bot(hand, indicator, left_tile)
       @indicator = indicator
       @left_tile = left_tile
       @hand = hand.dup
-      
-      @ready = true
     end
     
     def bot?
@@ -51,19 +57,32 @@ module Okey
       last_index = @hand.length - 1
       tile = @hand.delete_at(last_index)
       @throw_callback.call(tile)
-      
     end
     
     def send(hash)
-      if hash[:turn] == @position
-        if hash[:status] == :throw_tile
-          tile = hash[:tile]
-          play_draw(tile)
-        elsif hash[:status] == :draw_tile
-          tile = hash[:tile]
-          @hand.push(tile)
-          play_throw
+      # if hash[:turn] == @position
+        # if hash[:status] == :throw_tile
+          # tile = hash[:tile]
+          # play_draw(tile)
+        # elsif hash[:status] == :draw_tile
+          # tile = hash[:tile]
+          # @hand.push(tile)
+          # play_throw
+        # end
+      if hash[:status] == :throw_tile && hash[:turn] == @position
+        tile = hash[:tile]
+        play_draw(tile)
+      elsif hash[:status] == :draw_tile && hash[:turn] == @position
+        tile = hash[:tile]
+        @hand.push(tile)
+        play_throw
+      elsif hash[:status] == 'game_start'
+        init_bot(hash[:hand], hash[:indicator], nil)
+        if(hash[:turn] == @position)
+          EM::next_tick{force_play}
         end
+      elsif hash[:status] == :join_room
+        @position = hash[:position]
       end
     end
     

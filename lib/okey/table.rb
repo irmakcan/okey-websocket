@@ -32,8 +32,8 @@ module Okey
       position        
     end
     
-    def create_bot(position)
-      @game.create_bot(position)
+    def init_bot(bot, position)
+      @game.init_bot(bot, position)
     end
     
     def get_user(position)
@@ -53,11 +53,11 @@ module Okey
     end
     
     def full?
-      user_count >= 4
+      @chairs.length >= 4
     end
     
     def empty?
-      user_count <= 0
+      @chairs.length <= 0
     end
     
     def all_ready?

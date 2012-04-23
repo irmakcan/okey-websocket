@@ -38,7 +38,7 @@ module Okey
       @table.remove(user.position)
       @room_channel.unsubscribe(user.sid)
       
-      if @table.empty?
+      if @table.user_count <= 0
         @lounge.destroy_room(self)
       else
         # publish leaved if game not started
@@ -46,22 +46,10 @@ module Okey
         
         # Add Bot if game is already started
         if @table.game_started?
-          bot = @table.create_bot(user.position)
-          bot.username = 'Okey Bot'
+          bot = OkeyBot.new
+          @table.init_bot(bot, user.position)
           join_room(bot)
-          bot.throw_callback do |tile|
-            success = @table.throw_tile(bot, tile)
-            raise "Should always success (Bot throw tile)" unless success
-            push_throw(tile)
-          end
-          bot.draw_callback do |center|
-            tile = @table.draw_tile(bot, center)
-            push_draw(bot, tile) if tile
-          end
-          bot.finish_callback do |hand, tile|
-            @table.throw_to_finish(bot, hand, tile)
-            handle_finish(bot, hand)
-          end
+          register_bot_callbacks(bot)
           
           if @table.turn == bot.position # TODO
             bot.force_play()
@@ -169,6 +157,15 @@ module Okey
         user.ready = true
         # start game
         @table.initialize_game if @table.full? && @table.all_ready? && @table.state == :waiting
+      when 'force_start'
+        if @table.state == :waiting && !@table.full?
+          until @table.full? do
+            bot = OkeyBot.new
+            register_bot_callbacks(bot)
+            @lounge.join_room(@name, bot)
+          end
+          @table.initialize_game if @table.full? && @table.all_ready? && @table.state == :waiting
+        end
       when 'throw_to_finish'
         tile = TileParser.parse(json['tile'])
         raw_hand = json['hand']
@@ -193,8 +190,6 @@ module Okey
         return RoomMessage.getJSON(:error, nil, 'Messaging error') if tile.nil? || !@table.game_started? || hand.nil? || hand.empty?
         success = @table.throw_to_finish(user, hand, tile)
         
-        
-        
         if success # Game ends
           handle_finish(user, hand)
         else
@@ -209,11 +204,27 @@ module Okey
         leave_room(user)
         @lounge.join_lounge(user)
       when 'chat'
-        push_chat(user, json['message'])
+        push_chat(user, json['message']) if json['message']
       else # Send err
         error_msg = RoomMessage.getJSON(:error, nil, "Messaging error")
       end
       error_msg
+    end
+    
+    def register_bot_callbacks(bot)
+      bot.throw_callback do |tile|
+        success = @table.throw_tile(bot, tile)
+        raise "Should always success (Bot throw tile)" unless success
+        push_throw(tile)
+      end
+      bot.draw_callback do |center|
+        tile = @table.draw_tile(bot, center)
+        push_draw(bot, tile) if tile
+      end
+      bot.finish_callback do |hand, tile|
+        @table.throw_to_finish(bot, hand, tile)
+        handle_finish(bot, hand)
+      end
     end
     
   end

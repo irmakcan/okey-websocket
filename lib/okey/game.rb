@@ -54,8 +54,8 @@ module Okey
     # def add_bot(okey_bot)
       # @bots.merge!({ okey_bot.position => okey_bot })
     # end
-    def create_bot(position)
-      OkeyBot.new(@tile_bag.hands[position], @tile_bag.indicator, @tile_bag.corner_tiles[Okey::TileBag::LEFT_CORNER[position]].last)
+    def init_bot(bot, position)
+      bot.init_bot(@tile_bag.hands[position], @tile_bag.indicator, @tile_bag.corner_tiles[Okey::TileBag::LEFT_CORNER[position]].last)
     end
 
   end
