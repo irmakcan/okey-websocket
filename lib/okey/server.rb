@@ -19,7 +19,7 @@ module Okey
       @@version    = (opts.delete(:version) || '0.0.0').to_s
 
       @opts = opts
-
+      @debug = (@env == :production ? false : true)
       @user_controller = UserController.new
     end
 
@@ -32,7 +32,7 @@ module Okey
         trap("TERM") { stop_server }
         trap("INT")  { stop_server }
 
-        EventMachine::WebSocket.start(:host => @ws_host, :port => @ws_port, :debug => true) do |ws|
+        EventMachine::WebSocket.start(:host => @ws_host, :port => @ws_port, :debug => @debug) do |ws|
           ws.onopen do
             user = User.new(ws)
             @user_controller.subscribe(user)
