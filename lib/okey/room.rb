@@ -214,8 +214,14 @@ module Okey
     def register_bot_callbacks(bot)
       bot.throw_callback do |tile|
         success = @table.throw_tile(bot, tile)
-        raise "Should always success (Bot throw tile)" unless success
-        push_throw(tile)
+        raise "Should always success (Bot throw tile) #{self.inspect}" unless success
+        
+        if @table.middle_tile_count <= 0
+          # Tilebag run out of tiles (declare tie)
+          handle_finish(nil, nil)
+        else
+          push_throw(tile)
+        end
       end
       bot.draw_callback do |center|
         tile = @table.draw_tile(bot, center)
