@@ -56,7 +56,7 @@ module Okey
       chairs.each { |pos, usr|
         name_position << { :name => usr.username, :position => pos } if user.position != pos
       }
-      { :status => action, :position => user.position, :users => name_position }
+      { :status => action, :position => user.position, :users => name_position, :play_timeout => Okey::Server.play_interval }
     end
   end
   

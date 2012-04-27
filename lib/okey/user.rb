@@ -1,29 +1,45 @@
 module Okey
   class Player
-    attr_accessor :username, :position
+    attr_accessor :username, :position, :afk_count
+    attr_reader :websocket
+    
+    def initialize
+      @afk_count = 0
+    end
     
     def bot?
       false
     end
     
+    def start_timer(action, hand = nil)
+      @timer = EventMachine::Timer.new(Okey::Server.play_interval) do
+        @afk_count += 1
+        if @afk_count >= 4
+          message = { :action => 'leave_room' }
+        else
+          if action == :draw
+            # Draw random
+            message = { :action => 'draw_tile', :center => [true, false].sample }
+          elsif action == :throw
+            # Throw random
+            message = { :action => 'throw_tile', :tile => hand.sample }
+          end
+        end
+        @websocket.trigger_on_message(message.to_json)
+      end
+    end
+    
+    def cancel_timer
+      @timer.cancel if @timer
+      @timer = nil
+    end
+    
   end
-  
-  # class OkeyAI
-    # include EM::Deferrable
-#     
-    # def initialize()
-#       
-    # end
-#     
-  # end
   
   class OkeyBot < Player
     attr_accessor :sid
     
     def initialize()
-      # @indicator = indicator
-      # @left_tile = left_tile
-      # @hand = hand.dup
       @username = "Okey Bot"
       @ready = true
     end
@@ -118,11 +134,11 @@ module Okey
   
   class User < Player
     attr_accessor :sid
-    attr_reader :websocket
     
     def initialize(websocket)
       @websocket = websocket
       @ready = false
+      @timer = nil
     end
 
     def ready?
@@ -160,6 +176,7 @@ module Okey
       # user = find_by_username username # DB search
       # (user && user.salt == cookie_salt) ? user : nil # TODO change
     end
+    
     
     private
       def encrypt_password

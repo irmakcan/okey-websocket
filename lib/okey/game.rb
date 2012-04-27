@@ -12,6 +12,9 @@ module Okey
                                               @tile_bag.center_tile_left,
                                               @tile_bag.hands[position],
                                               @tile_bag.indicator))
+        if @turn == user.position
+          user.start_timer(:throw, @tile_bag.hands[user.position])
+        end
       end
     end
 
@@ -23,6 +26,8 @@ module Okey
 
       if success
         @turn = Chair.next(user.position)
+        user.cancel_timer
+        @table.chairs[@turn].start_timer(:draw) if @tile_bag.center_tile_left > 0 # Next player should draw
       end
           
       success
@@ -42,6 +47,10 @@ module Okey
         tile = @tile_bag.draw_middle_tile(user.position)
       else
         tile = @tile_bag.draw_left_tile(user.position)
+      end
+      if !tile.nil?
+        user.cancel_timer
+        user.start_timer(:throw, @tile_bag.hands[user.position])
       end
       tile
     end

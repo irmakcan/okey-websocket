@@ -2,7 +2,7 @@ module Okey
   class Server
 
     attr_reader :env, :host, :ws_host, :ws_port, :http_port
-    @@version = nil
+    @@version, @@play_interval = nil, nil
     def self.start(opts = {})
       new(opts).start
     end
@@ -17,8 +17,9 @@ module Okey
       @http_port          = (opts.delete(:http_port) || 3000).to_i
       @inactivity_timeout = (opts.delete(:inactivity_timeout) || 300).to_i
 
-      @@version    = (opts.delete(:version) || '0.0.0').to_s
-
+      @@version           = (opts.delete(:version) || '0.0.0').to_s
+      @@play_interval     = (opts.delete(:play_interval) || 20).to_i
+      
       @opts = opts
       @debug = (@env == :production ? false : true)
       @user_controller = UserController.new
@@ -26,6 +27,9 @@ module Okey
 
     def self.version
       @@version || '0.0.0'
+    end
+    def self.play_interval
+      @@play_interval || 30
     end
 
     def start

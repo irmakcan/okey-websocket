@@ -22,6 +22,7 @@ module Okey
         leave_room(user)
         @lounge.leave_lounge(user)
       }
+      user.afk_count = 0
       @table.add_user(user)
       # Send his location and table infos
       user.send(JoinResponseMessage.getJSON(user, @table.chairs))
