@@ -36,6 +36,7 @@ module Okey
 
     def leave_room(user)
       user.ready = false #
+      user.cancel_timer
       @table.remove(user.position)
       @room_channel.unsubscribe(user.sid)
       
