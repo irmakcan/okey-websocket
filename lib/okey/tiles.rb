@@ -118,6 +118,7 @@ module Okey
           t = (tile.fake_joker? ? TileFactory.instance.get(joker.value, joker.color) : tile )
           if value > 0
             return false if value != t.value || colors.include?(t.color)
+            colors << t.color
           else
             value = t.value
             colors << t.color
