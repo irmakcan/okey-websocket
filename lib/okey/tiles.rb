@@ -63,7 +63,11 @@ module Okey
     # hand => array of grouped tiles array
     def throw_tile_center(position, hand, tile)
       return false if @hands[position].length != 15 || !@hands[position].include?(tile)
-      return check_to_finish(@hands[position], hand.dup, tile)
+      hand_dup = []
+      hand.each do |group|
+        hand_dup << group.dup
+      end
+      return check_to_finish(@hands[position], hand_dup, tile)
     end
     
     def center_tile_left
