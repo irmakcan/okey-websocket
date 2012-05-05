@@ -4,13 +4,16 @@ require 'spec_helper'
 describe Okey::Room do
   include EventMachine::SpecHelper
   
-  describe "initialization" do
-    
-    before(:each) do
+  before(:each) do
+    em {
       @room_name = "new room"
       @user = Okey::User.new(FakeWebSocketClient.new({}))
       @room = Okey::Room.new(Okey::Lounge.new(Okey::UserController.new), @room_name)
-    end
+      done
+    }
+  end
+  
+  describe "initialization" do
     
     it "should set default values" do
       em{
@@ -35,12 +38,6 @@ describe Okey::Room do
   end
   
   describe "join" do
-    
-    before(:each) do
-      @room_name = "new room"
-      @user = Okey::User.new(FakeWebSocketClient.new({}))
-      @room = Okey::Room.new(Okey::Lounge.new(Okey::UserController.new), @room_name)
-    end
     
     it "should change user's procs" do
       em {
@@ -118,9 +115,6 @@ describe Okey::Room do
   describe "leave" do
     
     before(:each) do
-      @room_name = "new room"
-      @user = Okey::User.new(FakeWebSocketClient.new({}))
-      @room = Okey::Room.new(Okey::Lounge.new(Okey::UserController.new), @room_name)
       @user.username = 'example_user'
     end
     
@@ -191,9 +185,6 @@ describe Okey::Room do
     
     before(:each) do
       em {
-        @room_name = "new room"
-        @user = Okey::User.new(FakeWebSocketClient.new({}))
-        @room = Okey::Room.new(Okey::Lounge.new(Okey::UserController.new), @room_name)
         @room.join_room(@user)
         @user.websocket.sent_data = nil
         done

@@ -2,6 +2,8 @@ require 'set'
 
 module Okey
   class Lounge
+    NUM_OF_ROOMS = 8
+    
     def initialize(user_controller)
       @user_controller = user_controller
       @empty_rooms = {}
@@ -93,9 +95,12 @@ module Okey
 
     def send_room_json(user)
       room_list = []
-      @empty_rooms.each_value { |room|
+      keys = @empty_rooms.keys.shuffle
+      keys.each do |key|
+        room = @empty_rooms[key]
         room_list << { :room_name => room.name, :count => room.count }
-      }
+        break if room_list.length >= NUM_OF_ROOMS
+      end
       json = { :status => :lounge_update, :player_count => @players.length, :list => room_list }
       user.send(json)
     end
