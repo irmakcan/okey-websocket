@@ -113,6 +113,7 @@ module Okey
       end
       
       def check_set(group)
+        return false if group.length > 4
         joker = TileFactory.instance.get((@indicator.value % 13) + 1, @indicator.color)
         
         value = 0
