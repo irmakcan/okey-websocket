@@ -17,7 +17,11 @@ namespace :thin do
     system("thin start -R bin/daemon.rb")
   end
   task :start do
-    system("thin start -d -R bin/daemon.rb")
+    if ENV['env']
+      system("thin start -d -R bin/daemon.rb -e #{ENV['env']}")
+    else
+      system("thin -C config/thin/production.yml -R bin/daemon.rb start")
+    end
     puts "Server successfully started"
   end
   task :stop do
@@ -33,4 +37,3 @@ end
 task :sync do
   system("rsync -rav -e ssh --exclude-from .gitignore ../okey-websocket/ irmak@www.okey.irmakcan.com:/home/irmak/projects/okey-websocket")
 end
-
