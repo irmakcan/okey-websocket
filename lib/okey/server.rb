@@ -22,7 +22,7 @@ module Okey
       
       @opts = opts
       @debug = (@env == :production ? false : true)
-      @user_controller = UserController.new
+      @user_controller = UserController.new(:env => @env)
     end
 
     def self.version
@@ -36,6 +36,12 @@ module Okey
       EventMachine.run do
         trap("TERM") { stop_server }
         trap("INT")  { stop_server }
+
+        $redis = nil
+        if @env == :production
+          $redis = EM::Hiredis.connect("redis://redistogo:b2504c1f8b7a48fe42b004a4b21cfc89@dogfish.redistogo.com:9629/")
+          $redis.callback { puts "Redis now connected" }
+        end
 
         EventMachine::WebSocket.start(:host => @ws_host, :port => @ws_port, :debug => @debug) do |ws|
           ws.onopen do

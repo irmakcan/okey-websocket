@@ -2,7 +2,7 @@
 source "http://rubygems.org"
 
 gem 'eventmachine'#, :git => 'git://github.com/eventmachine/eventmachine.git'
-gem "em-hiredis", :git => 'git://github.com/whatupdave/em-hiredis.git'
+gem "em-hiredis"
 gem "em-websocket"
 gem 'em-http-request'
 
