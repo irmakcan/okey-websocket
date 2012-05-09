@@ -75,7 +75,7 @@ module Okey
       end
       
       if @env == :production
-        key = username.to_s
+        key = "auth:#{username.to_s}"
         $redis.hgetall(key).callback { |value_arr|
           hash = Hash[*value_arr]
           if hash['access_token'] == access_token
