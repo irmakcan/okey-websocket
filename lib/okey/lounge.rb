@@ -22,7 +22,7 @@ module Okey
         @players.delete(user)
       }
       # subscribe
-      user.send({ :status => :success, :message => "Authentication success" , :points => user.points })
+      user.send({ :status => :join_lounge, :points => user.points })
       @players << user
     end
 

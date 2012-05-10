@@ -4,7 +4,7 @@ describe Okey::Server do
   describe "initialize" do
     it "should set defaults" do
       server = Okey::Server.new
-      server.env.should == :test
+      Okey::Server.env.should == :development
       server.host.should == '0.0.0.0'
       server.http_port.should == 3000
       server.ws_host.should == '0.0.0.0'
@@ -14,14 +14,14 @@ describe Okey::Server do
 
     it "should accept options" do
       server = Okey::Server.new({
-        :env => :development,
+        :env => :test,
         :host => 'localhost',
         :ws_host => '127.0.0.1',
         :ws_port => 48080,
         :http_port => 45678,
         :version => '0.1.1'
       })
-      server.env.should == :development
+      Okey::Server.env.should == :test
       server.host.should == 'localhost'
       server.ws_host.should == '127.0.0.1'
       server.ws_port.should == 48080

@@ -23,15 +23,15 @@ describe Okey::Lounge do
       @user = Okey::User.new(FakeWebSocketClient.new({}))
     end
 
-    it "should send success json" do
+    it "should send join_lounge json" do
       em {
         Okey::Lounge.new(Okey::UserController.new).join_lounge(@user)
         # @user.websocket.get_onmessage.call("")
 
         json = @user.websocket.sent_data
         parsed = JSON.parse(json)
-        parsed["status"].should == "success"
-        parsed["message"].should == "Authentication success"
+        parsed["status"].should == "join_lounge"
+        parsed["points"].should be_a_kind_of(Integer)
 
         done
       }
