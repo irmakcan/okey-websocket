@@ -1,10 +1,11 @@
 module Okey
   class Player
-    attr_accessor :username, :position, :afk_count
+    attr_accessor :username, :position, :afk_count, :points
     attr_reader :websocket
     
     def initialize
       @afk_count = 0
+      @points = 0
     end
     
     def bot?
@@ -40,6 +41,7 @@ module Okey
     attr_accessor :sid
     
     def initialize()
+      super()
       @username = "Okey Bot"
       @ready = true
     end
@@ -136,6 +138,7 @@ module Okey
     attr_accessor :sid
     
     def initialize(websocket)
+      super()
       @websocket = websocket
       @ready = false
       @timer = nil

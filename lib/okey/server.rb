@@ -1,6 +1,8 @@
+require 'em-http'
+
 module Okey
   class Server
-
+    UPDATE_POINTS_URL = "https://okey.herokuapp.com/okey/updatepoints"
     attr_reader :env, :host, :ws_host, :ws_port, :http_port
     @@version, @@play_interval = nil, nil
     def self.start(opts = {})
@@ -23,6 +25,7 @@ module Okey
       @opts = opts
       @debug = (@env == :production ? false : true)
       @user_controller = UserController.new(:env => @env)
+      @@env = @env
     end
 
     def self.version
@@ -30,6 +33,15 @@ module Okey
     end
     def self.play_interval
       @@play_interval || 30
+    end
+    
+    def self.update_points(user, points)
+      if @@env == :production
+        $redis.hset("points:#{user.username}", :points, points).callback do |result|
+          EventMachine::HttpRequest.new("#{UPDATE_POINTS_URL}?username=#{user.username}").get
+        end
+      end
+      user.points += points
     end
 
     def start

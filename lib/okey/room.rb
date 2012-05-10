@@ -48,6 +48,8 @@ module Okey
         
         # Add Bot if game is already started
         if @table.game_started?
+          Okey::Server.update_points(user, -8)
+          
           bot = OkeyBot.new
           @table.init_bot(bot, user.position)
           join_room(bot)
@@ -93,11 +95,18 @@ module Okey
                              :turn =>     nil,
                              :username => nil,
                              :hand =>     nil })
+        @table.chairs.each_value do |usr|
+          Okey::Server.update_points(usr, -4) unless usr.bot?
+        end
+        
       else
         @room_channel.push({ :status =>   :user_won,
                              :turn =>     user.position,
                              :username => user.username,
                              :hand =>     hand })
+        @table.chairs.each_value do |usr|
+          Okey::Server.update_points(usr, (usr == user ? 10 : -5)) unless usr.bot?
+        end
       end
                         
       @table.chairs.each_value do |usr|

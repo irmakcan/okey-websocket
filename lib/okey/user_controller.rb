@@ -57,11 +57,12 @@ module Okey
         return
       end 
 
-      authenticate(json["username"], json["access_token"]) do |authenticated|
+      authenticate(json["username"], json["access_token"]) do |authenticated, points|
         unless authenticated
           blck.call AuthenticationMessage.getJSON(:error, nil, "Authentication error")
         else 
           user.username = json["username"]
+          user.points = points
           user.authenticated = true
           blck.call nil
         end
@@ -78,16 +79,16 @@ module Okey
         key = "auth:#{username.to_s}"
         $redis.hgetall(key).callback { |value_arr|
           hash = Hash[*value_arr]
-          if hash['access_token'] == access_token
+          if hash['access_token'] == access_token && hash['points'] != nil
             # Delete key
             $redis.del(key)
-            blck.call true
+            blck.call true, hash['points'].to_i
           else
-            blck.call false
+            blck.call false, nil
           end
         }
       else
-        blck.call true
+        blck.call true, 0
       end
       
     end

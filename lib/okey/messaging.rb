@@ -54,7 +54,7 @@ module Okey
     def self.getJSON(user, chairs)
       name_position = []
       chairs.each { |pos, usr|
-        name_position << { :name => usr.username, :position => pos } if user.position != pos
+        name_position << { :name => usr.username, :position => pos, :points => usr.points } if user.position != pos
       }
       { :status => action, :position => user.position, :users => name_position, :play_timeout => Okey::Server.play_interval }
     end
@@ -64,7 +64,7 @@ module Okey
     def self.action; 'new_user'; end
     
     def self.getJSON(user)
-      { :status => action, :position => user.position, :username => user.username }
+      { :status => action, :position => user.position, :username => user.username, :points => user.points }
     end
   end
   
@@ -73,14 +73,6 @@ module Okey
     
     def self.getJSON(position)
       { :status => action, :position => position }
-    end
-  end
-  
-  class LeaveReplacedChannelMessage < ResponseMessage
-    def self.action; 'user_replace'; end
-    
-    def self.getJSON(position, replaced_username)
-      { :status => action, :position => position, :replaced_username => replaced_username }
     end
   end
   
