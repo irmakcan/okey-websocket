@@ -28,25 +28,6 @@ module Okey
       { :status => status, :message => message }
     end
   end
-
-  
-  class RoomChannelMessage
-    # def self.getJSON(status, state_def, message)
-      # { :status => status, :message => message }.to_json
-    # end
-  end
-  
-  # class ChairStateMessage < ResponseMessage
-    # def self.action; 'chair_state'; end
-#     
-    # def self.getJSON(chairs)
-      # name_position = []
-      # chairs.each { |position, user|
-        # name_position << { :name => user.username, :position => position }
-      # }
-      # { :status => action, :users => name_position }.to_json
-    # end
-  # end
   
   class JoinResponseMessage < ResponseMessage
     def self.action; 'join_room'; end

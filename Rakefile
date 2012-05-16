@@ -1,6 +1,4 @@
 require 'bundler'
-#Bundler::GemHelper.install_tasks
-
 require 'rspec/core/rake_task'
 
 lib_path = File.expand_path(File.dirname(__FILE__)) + "/lib/"

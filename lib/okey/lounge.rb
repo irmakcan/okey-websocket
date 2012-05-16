@@ -7,7 +7,6 @@ module Okey
     def initialize(user_controller)
       @user_controller = user_controller
       @empty_rooms = {}
-      @full_rooms = {}
       @players = Set.new
     end
 
@@ -33,18 +32,18 @@ module Okey
 
     def destroy_room(room)
       r = @empty_rooms.delete(room.name)
-      @full_rooms.delete(room.name) if r.nil?
     end
 
 
     def join_room(room_name, user)
       room = @empty_rooms[room_name]
       
-      return LoungeMessage.getJSON(:error, nil, (@full_rooms[room_name].nil? ? 'Cannot find the room' : 'Room is full')) unless room
-      room.join_room(user)
-      if room.full?
-        @full_rooms.merge!({ room.name => @empty_rooms.delete(room.name) })
+      if room.nil?
+        return LoungeMessage.getJSON(:error, nil, 'Cannot find the room')
+      elsif !room.has_bot?
+         return LoungeMessage.getJSON(:error, nil, 'Room is full')
       end
+      room.join_room(user)
       nil
     end
     
@@ -84,7 +83,7 @@ module Okey
     end
 
     def create_and_join_room(room_name, user)
-      return LoungeMessage.getJSON(:error, nil, 'Room name is already taken') if @empty_rooms.has_key?(room_name) || @full_rooms.has_key?(room_name)
+      return LoungeMessage.getJSON(:error, nil, 'Room name is already taken') if @empty_rooms.has_key?(room_name)
       
       room = Room.new(self, room_name)
       room.join_room(user)

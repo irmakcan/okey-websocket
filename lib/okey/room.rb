@@ -23,6 +23,19 @@ module Okey
         @lounge.leave_lounge(user)
       }
       user.afk_count = 0
+      if @table.game_started? && !user.bot?
+        bot = nil
+        pos = nil
+        @table.chairs.each do |position, usr|
+          if usr.bot?
+            bot = usr
+            pos = position
+            break
+          end
+        end
+        @room_channel.unsubscribe(bot.sid)
+        @table.remove(pos)
+      end
       @table.add_user(user)
       # Send his location and table infos
       user.send(JoinResponseMessage.getJSON(user, @table.chairs))
@@ -70,6 +83,10 @@ module Okey
 
     def full?
       @table.full?
+    end
+    
+    def has_bot?
+      @table.has_bot?
     end
 
     private
@@ -138,10 +155,11 @@ module Okey
         return RoomMessage.getJSON(:error, nil, 'Messaging error') if tile.nil? || !@table.game_started?
         success = @table.throw_tile(user, tile) # returns logical error if occurs
         if success
-          push_throw(tile)
           if @table.middle_tile_count <= 0
             # Tilebag run out of tiles (declare tie)
             handle_finish(nil, nil)
+          else
+            push_throw(tile)
           end
         else
           if user.position != @table.turn
@@ -166,8 +184,15 @@ module Okey
         end
       when 'ready'
         user.ready = true
-        # start game
-        @table.initialize_game if @table.full? && @table.all_ready? && @table.state == :waiting
+        if @table.game_started?
+          user.send(GameStartingMessage.getJSON(@table.turn,
+                                              @table.tile_bag.center_tile_left,
+                                              @table.tile_bag.hands[user.position],
+                                              @table.tile_bag.indicator))
+        else
+          # start game
+          @table.initialize_game if @table.full? && @table.all_ready? && @table.state == :waiting
+        end
       when 'force_start'
         if @table.state == :waiting && !@table.full?
           until @table.full? do

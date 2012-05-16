@@ -56,6 +56,10 @@ module Okey
       @chairs.length >= 4
     end
     
+    def has_bot?
+      user_count() < 4
+    end
+    
     def empty?
       @chairs.length <= 0
     end
@@ -77,7 +81,12 @@ module Okey
       @game.turn if game_started?
     end
     
+    def tile_bag
+      @game.tile_bag if game_started?
+    end
+    
     def throw_tile(user, tile)
+      @state = :finished if @game.middle_tile_count <= 0
       @game.throw_tile(user, tile)
     end
     
@@ -96,6 +105,7 @@ module Okey
     def middle_tile_count
       @game.middle_tile_count
     end
+    
     
     
   end

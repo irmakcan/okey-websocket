@@ -87,20 +87,22 @@ module Okey
           # @hand.push(tile)
           # play_throw
         # end
-      if hash[:status] == :throw_tile && hash[:turn] == @position
-        tile = hash[:tile]
-        play_draw(tile)
-      elsif hash[:status] == :draw_tile && hash[:turn] == @position
-        tile = hash[:tile]
-        @hand.push(tile)
-        play_throw
-      elsif hash[:status] == 'game_start'
-        init_bot(hash[:hand], hash[:indicator], nil)
-        if(hash[:turn] == @position)
-          EM::next_tick{force_play}
+      EM.next_tick do
+        if hash[:status] == :throw_tile && hash[:turn] == @position
+          tile = hash[:tile]
+          play_draw(tile)
+        elsif hash[:status] == :draw_tile && hash[:turn] == @position
+          tile = hash[:tile]
+          @hand.push(tile)
+          play_throw
+        elsif hash[:status] == 'game_start'
+          init_bot(hash[:hand], hash[:indicator], nil)
+          if(hash[:turn] == @position)
+            EM::next_tick{force_play}
+          end
+        elsif hash[:status] == :join_room
+          @position = hash[:position]
         end
-      elsif hash[:status] == :join_room
-        @position = hash[:position]
       end
     end
     
