@@ -2,7 +2,7 @@ require 'set'
 
 module Okey
   class Lounge
-    NUM_OF_ROOMS = 8
+    NUM_OF_ROOMS = 24
     
     def initialize(user_controller)
       @user_controller = user_controller
@@ -97,7 +97,11 @@ module Okey
       keys = @empty_rooms.keys.shuffle
       keys.each do |key|
         room = @empty_rooms[key]
-        room_list << { :room_name => room.name, :count => room.count }
+        name_position = []
+        room.chairs.each { |pos, usr|
+          name_position << { :name => usr.username, :position => pos, :points => usr.points } unless usr.bot?
+        }
+        room_list << { :room_name => room.name, :count => room.count, :users => name_position }
         break if room_list.length >= NUM_OF_ROOMS
       end
       json = { :status => :lounge_update, :player_count => @players.length, :list => room_list }

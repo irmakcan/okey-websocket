@@ -88,6 +88,10 @@ module Okey
     def has_bot?
       @table.has_bot?
     end
+    
+    def chairs
+      @table.chairs 
+    end
 
     private
     
