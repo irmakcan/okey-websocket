@@ -23,7 +23,7 @@ module Okey
       @@play_interval     = (opts.delete(:play_interval) || 20).to_i
       
       @opts = opts
-      @debug = (@@env == :production ? false : true)
+      @debug = (@@env == :production ? false : (@@env == :development ? true : false))
       @user_controller = UserController.new(:env => @@env)
     end
     
@@ -54,7 +54,7 @@ module Okey
 
         EventMachine::WebSocket.start(:host => @ws_host, :port => @ws_port, :debug => @debug) do |ws|
           ws.onopen do
-            ws.comm_inactivity_timeout=@inactivity_timeout
+            ws.comm_inactivity_timeout=@inactivity_timeout if @@env == :production
             user = User.new(ws)
             @user_controller.subscribe(user)
           end
