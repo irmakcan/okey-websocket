@@ -27,7 +27,7 @@ module Okey
       if success
         @turn = Chair.next(user.position)
         user.cancel_timer
-        @table.chairs[@turn].start_timer(:draw) if @tile_bag.center_tile_left > 0 # Next player should draw
+        @table.chairs[@turn].start_timer(:draw) if @table.state == :started && @tile_bag.center_tile_left > 0 # Next player should draw
       end
           
       success

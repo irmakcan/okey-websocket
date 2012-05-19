@@ -26,7 +26,7 @@ module Okey
             message = { :action => 'throw_tile', :tile => hand.sample }
           end
         end
-        @websocket.trigger_on_message(message.to_json)
+        @websocket.trigger_on_message(message.to_json) if @websocket
       end
     end
     

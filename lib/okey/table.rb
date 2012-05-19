@@ -1,7 +1,8 @@
 
 module Okey
   class Table
-    attr_reader :chairs, :state
+    attr_reader :chairs
+    attr_accessor :state
     def initialize
       @chairs = {}
       @game = nil

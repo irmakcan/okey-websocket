@@ -54,6 +54,10 @@ module Okey
       @room_channel.unsubscribe(user.sid)
       
       if @table.user_count <= 0
+        @table.state = :finished
+        @table.chairs.each_value do |player|
+          player.cancel_timer
+        end
         @lounge.destroy_room(self)
       else
         # publish leaved if game not started
