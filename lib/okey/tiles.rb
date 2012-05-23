@@ -93,8 +93,8 @@ module Okey
         sent_hand.each do |group|
           return false if group.length != 2
           if group[0] != group[1]
-            return true if (group[0].fake_joker? && group[0].fake_joker?)
-            return false if (group[0] != joker) || (group[1] != joker)
+            next if (group[0].fake_joker? && group[1].fake_joker?)
+            return false if (group[0] != joker) && (group[1] != joker)
           end
         end
         true
