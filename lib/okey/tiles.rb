@@ -74,10 +74,6 @@ module Okey
       @bag.length
     end
     
-    # check for the end
-    # def throw_tile_finish(position, tile)
-#       
-    # end
     private
       def check_to_finish(real_hand, sent_hand, thrown_tile)
         rh = real_hand.sort { |a,b| comp = (a.value <=> b.value); comp.zero? ? a.color <=> b.color : comp }

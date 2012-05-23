@@ -3,12 +3,6 @@ require 'json'
 
 describe Okey::UserController do
   include EventMachine::SpecHelper
-  # describe "subscribe" do
-  # it "should overwrite onmessage block" do
-  # @controller.subscribe(@user)
-  # @user.websocket.onmessage.should be_instance_of(Proc)
-  # end
-  # end
 
   it "should change websocket procs" do
     em {
@@ -27,6 +21,7 @@ describe Okey::UserController do
   end
 
   describe "authentication" do
+    
     before(:each) do
       @user = Okey::User.new(FakeWebSocketClient.new({}))
       @json_attr = { :action => 'authenticate', :version => '0.0.0', :username => 'irmak', :access_token => 'fdhasjk' }
@@ -35,7 +30,9 @@ describe Okey::UserController do
     end
 
     describe "failure" do
+      
       describe "unsupported messages" do
+        
         it "should return fail json message on empty string" do
           em {
             @user.websocket.get_onmessage.call("")
@@ -48,6 +45,7 @@ describe Okey::UserController do
             done
           }
         end
+        
         it "should return fail json message on empty json" do
           em {
             @user.websocket.get_onmessage.call({}.to_json)
@@ -60,6 +58,7 @@ describe Okey::UserController do
             done
           }
         end
+        
         it "should return fail json message on unsupported message" do
           em {
             @json_attr.merge!({ :action => 'not_authenticate' })
@@ -89,8 +88,6 @@ describe Okey::UserController do
         }
       end
 
-      #it "should return authentication error message on username, salt mismatch"
-
       it "should return authentication error message on invalid username" do
         em {
           @json_attr.merge!({:username => ''})
@@ -104,6 +101,7 @@ describe Okey::UserController do
           done
         }
       end
+      
       it "should return authentication error message on empty username" do
         em {
           @json_attr.delete(:username)
@@ -121,7 +119,6 @@ describe Okey::UserController do
     end
 
     describe "success" do
-    #it "should authenticate on matching username salt pair"
 
       it "should assign user's username" do
         em {
@@ -141,6 +138,7 @@ describe Okey::UserController do
           done
         }
       end
+      
       it "should change the onclose Proc" do
         em {
           old_block = @user.websocket.get_onclose
@@ -149,17 +147,9 @@ describe Okey::UserController do
           done
         }
       end
+      
     end
+    
   end
 
-# describe "authenticate" do
-# describe "failure" do
-# it "should fail on different version"
-# end
-#
-# describe "success" do
-# it "should assign user's username"
-# end
-#
-# end
 end

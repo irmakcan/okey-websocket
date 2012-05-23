@@ -78,15 +78,6 @@ module Okey
     end
     
     def send(hash)
-      # if hash[:turn] == @position
-        # if hash[:status] == :throw_tile
-          # tile = hash[:tile]
-          # play_draw(tile)
-        # elsif hash[:status] == :draw_tile
-          # tile = hash[:tile]
-          # @hand.push(tile)
-          # play_throw
-        # end
       EM.next_tick do
         if hash[:status] == :throw_tile && hash[:turn] == @position
           tile = hash[:tile]
@@ -177,15 +168,5 @@ module Okey
       @websocket.state
     end
 
-    def self.authenticate_with_salt(username, cookie_salt)
-      # user = find_by_username username # DB search
-      # (user && user.salt == cookie_salt) ? user : nil # TODO change
-    end
-    
-    
-    private
-      def encrypt_password
-        
-      end
   end
 end

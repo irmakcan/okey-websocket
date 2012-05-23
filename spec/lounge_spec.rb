@@ -62,11 +62,9 @@ describe Okey::Lounge do
         @lounge = Okey::Lounge.new(Okey::UserController.new)
         onmessage = @user.websocket.get_onmessage
         onclose = @user.websocket.get_onclose
-        # onerror = @user.websocket.get_onerror
         @lounge.join_lounge(@user)
         @user.websocket.get_onmessage.should_not == onmessage
         @user.websocket.get_onclose.should_not == onclose
-        # @user.websocket.get_onerror.should_not == onerror TODO
 
         done
       }
@@ -177,9 +175,6 @@ describe Okey::Lounge do
       it "should subscribe to user controller and change the websocket procs" do
         em {
           onmessage = @user.websocket.get_onmessage
-          # onclose = @user.websocket.get_onclose
-          # onerror = @user.websocket.get_onerror
- 
           @user.websocket.get_onmessage.call(@leave_request_attr.to_json)
 
           @user.websocket.get_onmessage.should_not == onmessage

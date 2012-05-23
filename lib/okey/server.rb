@@ -10,8 +10,6 @@ module Okey
     end
 
     def initialize(opts = {})
-      # @room_factory = RoomFactory.new # TODO
-
       @@env               = (opts.delete(:env) || :development).to_sym
       @host               = (opts.delete(:host) || '0.0.0.0').to_s
       @ws_host            = (opts.delete(:ws_host) || '0.0.0.0').to_s
@@ -64,7 +62,6 @@ module Okey
     end
 
     def stop_server
-      # Do other things before shutdown TODO
       EventMachine.stop
     end
     

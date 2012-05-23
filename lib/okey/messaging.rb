@@ -80,9 +80,4 @@ module Okey
     end
   end
   
-  # class MoveMessage < ResponseMessage
-    # def self.action; 'move'; end
-#     
-  # end
-  
 end

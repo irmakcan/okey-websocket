@@ -8,8 +8,6 @@ module Okey
     end
   
     def subscribe(user)
-      # May publish connection established
-      # user.send json(connection established) TODO
       user.onmessage { |msg|
 
         handle_request(user, msg) do |error|
@@ -21,15 +19,6 @@ module Okey
             @lounge.join_lounge(user)
           end
         end
-
-        # error = handle_request(user, msg)
-        # if error
-          # user.send error
-        # else
-        # # Everything went well (authenticated)
-          # @lounge = Lounge.new(self) unless @lounge
-          # @lounge.join_lounge(user)
-        # end
       }
       user.onclose {
         user = nil # not truly necessary
@@ -45,9 +34,6 @@ module Okey
       rescue JSON::ParserError
         json = nil
       end
-
-      # return AuthenticationMessage.getJSON(:error, nil, "Messaging error") if json.nil? || json["action"] != "authenticate"
-      # return AuthenticationMessage.getJSON(:error, nil, "Incompatible version") if json["version"] != Server.version
 
       if json.nil? || json["action"] != "authenticate"
         blck.call AuthenticationMessage.getJSON(:error, nil, "Messaging error")

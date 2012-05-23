@@ -24,8 +24,7 @@ module Okey
     def version
       @parsed["version"]
     end
-    
-    
       
   end
+  
 end

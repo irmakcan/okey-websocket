@@ -24,17 +24,6 @@ describe Okey::Room do
       }
     end
     
-    # it "should join the user in and change its websocket procs" do
-      # em {
-        # @room
-        # @user.websocket.get_onmessage.should_not == nil
-        # #@user.websocket.get_onclose.should_not == nil
-        # done
-      # }
-    # end
-    
-    
-    
   end
   
   describe "join" do
@@ -108,8 +97,6 @@ describe Okey::Room do
       }
     end
     
-    # it "should replace the AI with the new user"
-    
   end
   
   describe "leave" do
@@ -133,10 +120,6 @@ describe Okey::Room do
         done
       }
     end
-    
-    it "should add AI if the game is already started"
-    
-    
     
     it "should unsubscribe user's sid from channel" do
       em {

@@ -1,7 +1,9 @@
 require 'spec_helper'
 
 describe Okey::Server do
+  
   describe "initialize" do
+    
     it "should set defaults" do
       server = Okey::Server.new
       Okey::Server.env.should == :development
@@ -28,18 +30,21 @@ describe Okey::Server do
       server.http_port.should == 45678
       Okey::Server.version.should == '0.1.1'
     end
+    
   end
 
   describe "stop" do
+    
     before(:each) do
       @server = Okey::Server.new
       EventMachine.stub!(:stop)
-    # @server.controller = mock(Sudokill::Controller, :close => nil)
     end
+    
     it "should stop the eventmachine" do
       EventMachine.should_receive(:stop)
       @server.stop_server
     end
     
   end
+  
 end
